@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Can I Sweat?</title>
+  <meta name="description" content="Instantly tells you whether the current temperature and humidity let your sweat cool you, or whether you need to cool down another way." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app" id="app">
+    <!-- Verdict banner -->
+    <section class="verdict" id="verdict" aria-live="polite">
+      <p class="verdict__status" id="statusLine">Checking conditions…</p>
+      <h1 class="verdict__headline" id="headline">Locating you…</h1>
+      <p class="verdict__detail" id="detail">Allow location access to read the weather where you are.</p>
+    </section>
+
+    <!-- Effectiveness meter -->
+    <section class="meter" id="meterSection" hidden>
+      <div class="meter__labels">
+        <span>Sweat load</span>
+        <span id="meterValue">—</span>
+      </div>
+      <div class="meter__track" role="img" aria-label="How hard your sweating is working">
+        <div class="meter__fill" id="meterFill"></div>
+        <div class="meter__limit" title="~85% — the highest sweat rate you can sustain"></div>
+      </div>
+      <p class="meter__hint" id="meterHint"></p>
+    </section>
+
+    <!-- Readout chips -->
+    <section class="chips" id="chips" hidden>
+      <div class="chip"><span class="chip__label">Temperature</span><span class="chip__value" id="chipTemp">—</span></div>
+      <div class="chip"><span class="chip__label">Humidity</span><span class="chip__value" id="chipHum">—</span></div>
+      <div class="chip"><span class="chip__label">Feels like</span><span class="chip__value" id="chipFeels">—</span></div>
+      <div class="chip"><span class="chip__label">Wet-bulb</span><span class="chip__value" id="chipWetbulb">—</span></div>
+    </section>
+
+    <!-- Controls -->
+    <section class="controls">
+      <fieldset class="control control--activity">
+        <legend>What are you doing?</legend>
+        <div class="segmented" id="activity" role="radiogroup" aria-label="Activity level">
+          <button type="button" class="seg" data-activity="rest">Resting</button>
+          <button type="button" class="seg is-active" data-activity="light">Light</button>
+          <button type="button" class="seg" data-activity="moderate">Moderate</button>
+          <button type="button" class="seg" data-activity="hard">Hard</button>
+        </div>
+      </fieldset>
+
+      <div class="control control--row">
+        <button type="button" class="btn btn--primary" id="refreshBtn">Use my location</button>
+        <button type="button" class="btn" id="unitBtn" aria-label="Toggle temperature units">°C</button>
+      </div>
+
+      <details class="manual" id="manualPanel">
+        <summary>Enter conditions manually</summary>
+        <div class="manual__grid">
+          <label>Temperature (<span class="unitTag">°C</span>)
+            <input type="number" id="manualTemp" inputmode="decimal" step="0.1" placeholder="e.g. 32" />
+          </label>
+          <label>Humidity (%)
+            <input type="number" id="manualHum" inputmode="numeric" min="0" max="100" step="1" placeholder="e.g. 70" />
+          </label>
+          <label>Wind (km/h, optional)
+            <input type="number" id="manualWind" inputmode="decimal" min="0" step="1" placeholder="e.g. 10" />
+          </label>
+        </div>
+        <button type="button" class="btn btn--primary" id="applyManual">Calculate</button>
+      </details>
+    </section>
+
+    <footer class="foot">
+      <p class="foot__place" id="place"></p>
+      <p class="foot__caveat">
+        Estimate based on air physics — <strong>not medical advice</strong>.
+        Real risk also depends on hydration, sun exposure, acclimatization, age and
+        medication. Uses shade air temperature. If you feel unwell, stop and cool down.
+      </p>
+      <p class="foot__v">v1 · a minutes-to-danger countdown is planned for v2</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
