@@ -13,6 +13,9 @@
 const SKIN_TEMP = 35;      // °C, typical warm-skin temperature
 const H_RADIATIVE = 4.7;   // W/m²·K, linearized radiative coefficient
 const LEWIS = 16.5;        // W/m²·kPa per W/m²·K (Lewis relation for air)
+const MAX_SWEAT_COOLING = 500; // W/m² — peak evaporative cooling the body can
+                               // actually produce; the environment may allow
+                               // more, but you can't sweat faster than this.
 
 // Metabolic heat production by activity (W/m² of body surface).
 const METABOLIC = {
@@ -93,16 +96,19 @@ function evaluate(t, rh, windMs, activity) {
   const Pair = (Math.max(0, Math.min(100, rh)) / 100) * satVaporPressure(t);
   const he = LEWIS * hc;
   const Emax = Math.max(0, he * (Pskin - Pair));
+  // The usable evaporative cooling is the lesser of what the air permits and
+  // what the body can actually sweat — otherwise a breeze invents capacity.
+  const Eusable = Math.min(Emax, MAX_SWEAT_COOLING);
 
   // Skin wettedness required: the fraction of skin that must be sweat-soaked.
   // w <= 1 → sweat can compensate; w > 1 → it cannot.
   let w;
   if (Ereq <= 0) {
     w = 0; // no evaporative cooling needed (air is cool relative to skin/heat)
-  } else if (Emax <= 0) {
+  } else if (Eusable <= 0) {
     w = Infinity; // air is saturated at skin temp — evaporation impossible
   } else {
-    w = Ereq / Emax;
+    w = Ereq / Eusable;
   }
 
   const level = classify(w, Tw);
@@ -173,6 +179,24 @@ function classify(w, Tw) {
     };
   }
 
+  // Sweat is keeping up, but the air itself is hot. A wet-bulb this high is a
+  // genuine heat-stress environment even when your sweat load looks modest —
+  // you sweat heavily and lose fluid, so this must never read as "easy".
+  if (Tw >= 27) {
+    return {
+      level: 'warn',
+      status: 'Hot — heat-stress zone',
+      headline: 'It’s hot — don’t overdo it',
+      detail:
+        'Your sweat is keeping up for now, but this is a genuinely hot, humid ' +
+        `environment (wet-bulb ${Math.round(Tw)} °C). Expect heavy sweating and ` +
+        'fluid loss — drink plenty, rest in shade or AC, and avoid hard exertion.',
+      meterHint:
+        'Your sweat load may look modest, but the air itself is hot — heat still ' +
+        'strains your body here.',
+    };
+  }
+
   // Sweat is compensating — grade by how much margin is left.
   if (w > 0.85) {
     return {
@@ -185,14 +209,16 @@ function classify(w, Tw) {
       meterHint: 'Near the ~85% sustainable-sweat line — little headroom left.',
     };
   }
-  if (w > 0.5) {
+  // Moderate load, OR warm-but-muggy air (wet-bulb 24–27 °C): comfortable, but
+  // not "nothing" — you'll feel it and should keep drinking.
+  if (w > 0.5 || Tw >= 24) {
     return {
       level: 'good',
       status: 'Sweat is working',
       headline: 'You’re cooling fine',
       detail:
-        'Your sweat is evaporating well and keeping you in balance with comfortable ' +
-        'margin. Keep drinking water.',
+        'Your sweat is evaporating well and keeping you in balance. It may feel warm ' +
+        'or muggy, so keep drinking water — but you have room to spare.',
       meterHint: 'Comfortable margin before sweat is maxed out.',
     };
   }
@@ -265,7 +291,9 @@ function render() {
   dom.meterSection.hidden = false;
   const pct = r.w === Infinity ? 120 : Math.min(120, Math.round(r.w * 100));
   dom.meterFill.style.width = `${Math.min(100, pct)}%`;
-  dom.meterFill.style.background = fillColor(r.level);
+  // Colour the bar by the sweat LOAD itself, not the overall verdict: in a hot
+  // environment the banner may be amber while the load is genuinely low.
+  dom.meterFill.style.background = loadColor(r.w);
   dom.meterValue.textContent = r.w === Infinity ? '∞' : `${pct}%`;
   dom.meterHint.textContent = r.meterHint;
 
@@ -290,11 +318,11 @@ function render() {
   }
 }
 
-function fillColor(level) {
-  return {
-    great: 'var(--v-great)', good: 'var(--v-good)', warn: 'var(--v-warn)',
-    bad: 'var(--v-bad)', crit: 'var(--v-crit)',
-  }[level] || 'var(--v-good)';
+function loadColor(w) {
+  if (w > 1) return 'var(--v-bad)';
+  if (w > 0.85) return 'var(--v-warn)';
+  if (w > 0.5) return 'var(--v-good)';
+  return 'var(--v-great)';
 }
 
 function showMessage(headline, detail, { showManual = false } = {}) {

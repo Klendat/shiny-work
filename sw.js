@@ -1,5 +1,5 @@
 /* Minimal cache-first service worker for the app shell. */
-const CACHE = 'can-i-sweat-v2';
+const CACHE = 'can-i-sweat-v3';
 const SHELL = [
   './',
   'index.html',
