@@ -54,6 +54,17 @@
         </div>
       </fieldset>
 
+      <fieldset class="control control--activity">
+        <legend>How old are you?</legend>
+        <div class="segmented segmented--age" id="ageGroup" role="radiogroup" aria-label="Age group">
+          <button type="button" class="seg" data-age="baby">Baby</button>
+          <button type="button" class="seg" data-age="toddler">Toddler</button>
+          <button type="button" class="seg" data-age="child">Child</button>
+          <button type="button" class="seg is-active" data-age="adult">Adult</button>
+          <button type="button" class="seg" data-age="elderly">Elderly</button>
+        </div>
+      </fieldset>
+
       <div class="control control--row">
         <button type="button" class="btn btn--primary" id="refreshBtn">Use my location</button>
         <button type="button" class="btn" id="mapBtn">Pick on map</button>

@@ -25,6 +25,24 @@ const METABOLIC = {
   hard: 350,      // running, heavy labor (~6 MET)
 };
 
+// Age-group heat-vulnerability adjustments. Two effects, both well established:
+//   • offset  — degrees added to the perceived wet-bulb / air temperature for the
+//     risk tiers. Vulnerable groups reach danger at lower ambient heat, so we
+//     treat the environment as that many °C hotter than it is for them.
+//   • sweat   — fraction of an adult's evaporative (sweat) capacity they can
+//     produce. Infants barely sweat; older adults sweat less than they used to.
+// These are deliberately coarse risk adjustments, not per-person predictions.
+const AGE = {
+  baby:    { offset: 4.0, sweat: 0.35, vulnerable: true,
+             note: 'Babies overheat far faster than adults, can barely sweat, and can’t tell you they’re struggling — keep them cool and never leave them in a warm room or car.' },
+  toddler: { offset: 3.0, sweat: 0.55, vulnerable: true,
+             note: 'Toddlers heat up faster than adults and sweat less — keep them shaded, cool and drinking.' },
+  child:   { offset: 1.0, sweat: 0.80, vulnerable: false, note: '' },
+  adult:   { offset: 0.0, sweat: 1.00, vulnerable: false, note: '' },
+  elderly: { offset: 3.0, sweat: 0.65, vulnerable: true,
+             note: 'Older adults sweat less, feel thirst less, and may take medications that reduce heat tolerance — take this more seriously than the numbers alone suggest.' },
+};
+
 // Saturation vapor pressure over water (kPa), Tetens equation. T in °C.
 function satVaporPressure(t) {
   return 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
@@ -77,10 +95,12 @@ function convectiveCoeff(windMs) {
  * @param {number} rh   relative humidity (%)
  * @param {number} windMs wind speed (m/s)
  * @param {string} activity  key of METABOLIC
+ * @param {string} age  key of AGE
  */
-function evaluate(t, rh, windMs, activity) {
+function evaluate(t, rh, windMs, activity, age) {
   const Tw = wetBulb(t, rh);
   const feels = heatIndex(t, rh);
+  const ageAdj = AGE[age] ?? AGE.adult;
 
   const M = METABOLIC[activity] ?? METABOLIC.light;
   const hc = convectiveCoeff(windMs);
@@ -98,7 +118,8 @@ function evaluate(t, rh, windMs, activity) {
   const Emax = Math.max(0, he * (Pskin - Pair));
   // The usable evaporative cooling is the lesser of what the air permits and
   // what the body can actually sweat — otherwise a breeze invents capacity.
-  const Eusable = Math.min(Emax, MAX_SWEAT_COOLING);
+  // The sweat ceiling is scaled down for age groups that sweat less.
+  const Eusable = Math.min(Emax, MAX_SWEAT_COOLING * ageAdj.sweat);
 
   // Skin wettedness required: the fraction of skin that must be sweat-soaked.
   // w <= 1 → sweat can compensate; w > 1 → it cannot.
@@ -111,7 +132,7 @@ function evaluate(t, rh, windMs, activity) {
     w = Ereq / Eusable;
   }
 
-  const level = classify(w, Tw, t);
+  const level = classify(w, Tw, t, ageAdj);
   return { t, rh, windMs, Tw, feels, M, Ereq, Emax, w, ...level };
 }
 
@@ -127,8 +148,19 @@ function evaluate(t, rh, windMs, activity) {
 //     air ADDS heat to you and sweat is your only cooling — so a low sweat load
 //     (often thanks to wind) must never read as "easy". Wind aids evaporation
 //     in dry heat, but it can't be trusted to cool you when the air is this hot.
-function classify(w, Tw, t) {
-  // Wet-bulb at/above skin temp: evaporation is impossible for anyone.
+function classify(w, Tw, t, age) {
+  const result = pickVerdict(w, Tw, t, age);
+  // For vulnerable age groups, spell out why the risk is higher — but only
+  // when we're actually flagging something (warn/bad/crit), not on green.
+  if (age.vulnerable && age.note && result.level !== 'great' && result.level !== 'good') {
+    result.detail += ` ${age.note}`;
+  }
+  return result;
+}
+
+function pickVerdict(w, Tw, t, age) {
+  // Physical limit first — evaporation is impossible for ANYONE at this
+  // wet-bulb, so age can't change it. Uses the real wet-bulb, not adjusted.
   if (Tw >= 35) {
     return {
       level: 'crit',
@@ -141,23 +173,28 @@ function classify(w, Tw, t) {
     };
   }
 
+  // For the risk tiers below, treat the environment as hotter for vulnerable
+  // ages: they reach the same danger at a lower true temperature.
+  const TwR = Tw + age.offset;
+  const tR = t + age.offset;
+
   // Dangerous wet-bulb: risky even at rest, and worse if you can't keep up.
-  if (Tw >= 31) {
+  if (TwR >= 31) {
     return {
       level: 'bad',
       status: 'Dangerous heat',
       headline: 'Cool down another way',
       detail:
         'The wet-bulb temperature is in the dangerous range — sweat can barely ' +
-        'evaporate even at rest. Seek shade/AC, wet your skin, use a fan, and limit ' +
-        'exertion. Your core temperature can climb here.',
+        'evaporate even at rest. Seek shade/AC, wet the skin, use a fan, and limit ' +
+        'exertion. Core temperature can climb here.',
       meterHint: 'Wet-bulb this high leaves almost no evaporative capacity.',
     };
   }
 
   // Sweat can't keep up with this effort (w > 1).
   if (w > 1) {
-    if (Tw >= 27) {
+    if (TwR >= 27) {
       // Warm AND overloaded — genuinely cool down another way.
       return {
         level: 'bad',
@@ -165,8 +202,8 @@ function classify(w, Tw, t) {
         headline: 'Cool down another way',
         detail:
           'At this effort you’re making more heat than the warm, humid air lets you ' +
-          'sweat off. Your core temperature will rise. Ease off, seek shade/AC, wet ' +
-          'your skin or use a fan.',
+          'sweat off. Core temperature will rise. Ease off, seek shade/AC, wet the ' +
+          'skin or use a fan.',
         meterHint: 'Above 100%: sweat can’t evaporate fast enough for this effort.',
       };
     }
@@ -176,43 +213,42 @@ function classify(w, Tw, t) {
       status: 'Sweat maxed for this effort',
       headline: 'Sweat is at its limit',
       detail:
-        'You’re working hard enough to outpace evaporation, so you’ll keep warming ' +
-        'up — but the air itself is cool, so this isn’t dangerous. Ease off or hydrate ' +
-        'and you’ll settle.',
+        'Working hard enough to outpace evaporation means warming up — but the air ' +
+        'itself is cool, so this isn’t dangerous. Ease off or hydrate and it settles.',
       meterHint: 'Above 100%, but cool air keeps this safe — just expect to run hot.',
     };
   }
 
   // Sweat is keeping up, but the air itself is hot. A wet-bulb this high is a
-  // genuine heat-stress environment even when your sweat load looks modest —
-  // you sweat heavily and lose fluid, so this must never read as "easy".
-  if (Tw >= 27) {
+  // genuine heat-stress environment even when the sweat load looks modest —
+  // heavy sweating and fluid loss, so this must never read as "easy".
+  if (TwR >= 27) {
     return {
       level: 'warn',
       status: 'Hot — heat-stress zone',
       headline: 'It’s hot — don’t overdo it',
       detail:
-        'Your sweat is keeping up for now, but this is a genuinely hot, humid ' +
+        'Sweat is keeping up for now, but this is a genuinely hot, humid ' +
         `environment (wet-bulb ${Math.round(Tw)} °C). Expect heavy sweating and ` +
         'fluid loss — drink plenty, rest in shade or AC, and avoid hard exertion.',
       meterHint:
-        'Your sweat load may look modest, but the air itself is hot — heat still ' +
-        'strains your body here.',
+        'The sweat load may look modest, but the air itself is hot — heat still ' +
+        'strains the body here.',
     };
   }
 
-  // Air at or above skin temperature: it's adding heat to you, and evaporating
-  // sweat is your ONLY cooling. Dry enough that wind still helps, but you're
-  // losing fluid fast and a lull in wind or rise in humidity tips you over.
-  if (t >= 35) {
+  // Air at or above skin temperature: it's adding heat, and evaporating sweat
+  // is the ONLY cooling. Dry enough that wind still helps, but fluid is going
+  // fast and a lull in wind or rise in humidity tips you over.
+  if (tR >= 35) {
     return {
       level: 'warn',
       status: 'Hot — running on sweat alone',
       headline: 'The air is adding heat',
       detail:
-        'The air is hotter than your skin, so it’s warming you — only sweat ' +
-        'evaporating is cooling you. It’s dry enough that sweating works, but a hot ' +
-        'breeze won’t cool you (a humid one makes it worse), and you’re losing fluid ' +
+        'The air is hotter than skin, so it’s warming the body — only sweat ' +
+        'evaporating is cooling it. It’s dry enough that sweating works, but a hot ' +
+        'breeze won’t cool you (a humid one makes it worse), and fluid is going ' +
         'fast. Drink constantly, seek shade or AC, and don’t rely on the wind.',
       meterHint: 'Cooling depends entirely on sweat evaporating — the air gives none back.',
     };
@@ -232,14 +268,14 @@ function classify(w, Tw, t) {
   }
   // Moderate load, warm-but-muggy air (wet-bulb 24–27 °C), or simply hot air
   // (≥33 °C): comfortable, but not "nothing" — you'll feel it and should drink.
-  if (w > 0.5 || Tw >= 24 || t >= 33) {
+  if (w > 0.5 || TwR >= 24 || tR >= 33) {
     return {
       level: 'good',
       status: 'Sweat is working',
       headline: 'You’re cooling fine',
       detail:
-        'Your sweat is evaporating well and keeping you in balance. It may feel warm ' +
-        'or muggy, so keep drinking water — but you have room to spare.',
+        'Sweat is evaporating well and keeping you in balance. It may feel warm ' +
+        'or muggy, so keep drinking water — but there’s room to spare.',
       meterHint: 'Comfortable margin before sweat is maxed out.',
     };
   }
@@ -248,7 +284,7 @@ function classify(w, Tw, t) {
     status: 'Sweat is working',
     headline: 'Plenty of cooling margin',
     detail:
-      'Conditions are easy for your body — sweat evaporates readily and you have lots ' +
+      'Conditions are easy for the body — sweat evaporates readily and there’s lots ' +
       'of spare cooling capacity.',
     meterHint: 'Lots of spare evaporative capacity.',
   };
@@ -262,6 +298,7 @@ const el = (id) => document.getElementById(id);
 
 const state = {
   activity: 'light',
+  age: 'adult',
   unit: 'C',          // 'C' or 'F'
   reading: null,      // { t, rh, windMs, source, placeName, lat?, lon? }
 };
@@ -281,6 +318,7 @@ const dom = {
   chipFeels: el('chipFeels'),
   chipWetbulb: el('chipWetbulb'),
   activity: el('activity'),
+  ageGroup: el('ageGroup'),
   refreshBtn: el('refreshBtn'),
   mapBtn: el('mapBtn'),
   mapModal: el('mapModal'),
@@ -301,7 +339,7 @@ const fmtTemp = (c) => `${Math.round(cToDisplay(c))}°${state.unit}`;
 function render() {
   if (!state.reading) return;
   const { t, rh, windMs } = state.reading;
-  const r = evaluate(t, rh, windMs, state.activity);
+  const r = evaluate(t, rh, windMs, state.activity, state.age);
 
   dom.verdict.dataset.level = r.level;
   dom.statusLine.textContent = r.status;
@@ -510,6 +548,16 @@ dom.activity.addEventListener('click', (e) => {
   if (!btn) return;
   state.activity = btn.dataset.activity;
   for (const b of dom.activity.querySelectorAll('.seg')) {
+    b.classList.toggle('is-active', b === btn);
+  }
+  render();
+});
+
+dom.ageGroup.addEventListener('click', (e) => {
+  const btn = e.target.closest('.seg');
+  if (!btn) return;
+  state.age = btn.dataset.age;
+  for (const b of dom.ageGroup.querySelectorAll('.seg')) {
     b.classList.toggle('is-active', b === btn);
   }
   render();
