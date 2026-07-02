@@ -216,7 +216,7 @@ const el = (id) => document.getElementById(id);
 const state = {
   activity: 'light',
   unit: 'C',          // 'C' or 'F'
-  reading: null,      // { t, rh, windMs, source, placeName }
+  reading: null,      // { t, rh, windMs, source, placeName, lat?, lon? }
 };
 
 const dom = {
@@ -235,7 +235,11 @@ const dom = {
   chipWetbulb: el('chipWetbulb'),
   activity: el('activity'),
   refreshBtn: el('refreshBtn'),
-  unitBtn: el('unitBtn'),
+  mapBtn: el('mapBtn'),
+  mapModal: el('mapModal'),
+  mapClose: el('mapClose'),
+  mapConfirm: el('mapConfirm'),
+  unitToggle: el('unitToggle'),
   manualPanel: el('manualPanel'),
   manualTemp: el('manualTemp'),
   manualHum: el('manualHum'),
@@ -275,12 +279,14 @@ function render() {
   // Keep manual fields in sync so they're a live starting point.
   dom.manualTemp.value = Math.round(cToDisplay(t) * 10) / 10;
   dom.manualHum.value = Math.round(rh);
-  if (state.reading.placeName) {
-    dom.place.textContent = state.reading.source === 'manual'
-      ? 'Manual conditions'
-      : `📍 ${state.reading.placeName}`;
+  if (state.reading.source === 'manual') {
+    dom.place.textContent = 'Manual conditions';
+  } else if (state.reading.placeName) {
+    dom.place.textContent = `📍 ${state.reading.placeName}`;
+  } else if (state.reading.lat != null) {
+    dom.place.textContent = `📍 ${state.reading.lat.toFixed(3)}, ${state.reading.lon.toFixed(3)}`;
   } else {
-    dom.place.textContent = state.reading.source === 'manual' ? 'Manual conditions' : '';
+    dom.place.textContent = '';
   }
 }
 
@@ -349,7 +355,7 @@ function locate() {
           fetchWeather(latitude, longitude),
           reverseGeocode(latitude, longitude),
         ]);
-        state.reading = { ...reading, source: 'gps', placeName };
+        state.reading = { ...reading, source: 'gps', placeName, lat: latitude, lon: longitude };
         render();
       } catch (err) {
         showMessage('Couldn’t get the weather',
@@ -393,6 +399,61 @@ function applyManual() {
   render();
 }
 
+/* ---------- Map picker ---------- */
+
+let leafletMap = null;
+let mapMarker = null;
+let pickedPoint = null;
+
+function openMap() {
+  dom.mapModal.showModal();
+  if (!leafletMap) {
+    leafletMap = L.map('map', { zoomControl: true });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(leafletMap);
+    leafletMap.on('click', (e) => {
+      pickedPoint = e.latlng;
+      if (mapMarker) {
+        mapMarker.setLatLng(pickedPoint);
+      } else {
+        mapMarker = L.circleMarker(pickedPoint, {
+          radius: 9, weight: 3, color: '#2f6bd8', fillColor: '#5b9dff', fillOpacity: 0.9,
+        }).addTo(leafletMap);
+      }
+      dom.mapConfirm.disabled = false;
+    });
+  }
+  // Center on the current reading if we have coordinates, else a world view.
+  const hasCoords = state.reading && state.reading.lat != null;
+  leafletMap.setView(
+    hasCoords ? [state.reading.lat, state.reading.lon] : [20, 0],
+    hasCoords ? 10 : 2
+  );
+  // The map measures itself while the dialog is still opening; re-measure after.
+  setTimeout(() => leafletMap.invalidateSize(), 60);
+}
+
+async function confirmMapPick() {
+  if (!pickedPoint) return;
+  const { lat, lng } = pickedPoint;
+  dom.mapModal.close();
+  showMessage('Getting the weather…', 'Fetching conditions for the pinned location.');
+  try {
+    const [reading, placeName] = await Promise.all([
+      fetchWeather(lat, lng),
+      reverseGeocode(lat, lng),
+    ]);
+    state.reading = { ...reading, source: 'map', placeName, lat, lon: lng };
+    render();
+  } catch (err) {
+    showMessage('Couldn’t get the weather',
+      `${err.message}. Check your connection or enter conditions manually.`,
+      { showManual: true });
+  }
+}
+
 /* ---------- Events ---------- */
 
 dom.activity.addEventListener('click', (e) => {
@@ -407,10 +468,17 @@ dom.activity.addEventListener('click', (e) => {
 
 dom.refreshBtn.addEventListener('click', locate);
 dom.applyManual.addEventListener('click', applyManual);
+dom.mapBtn.addEventListener('click', openMap);
+dom.mapClose.addEventListener('click', () => dom.mapModal.close());
+dom.mapConfirm.addEventListener('click', confirmMapPick);
 
-dom.unitBtn.addEventListener('click', () => {
-  state.unit = state.unit === 'C' ? 'F' : 'C';
-  dom.unitBtn.textContent = `°${state.unit}`;
+dom.unitToggle.addEventListener('click', (e) => {
+  const btn = e.target.closest('.seg');
+  if (!btn || btn.dataset.unit === state.unit) return;
+  state.unit = btn.dataset.unit;
+  for (const b of dom.unitToggle.querySelectorAll('.seg')) {
+    b.classList.toggle('is-active', b === btn);
+  }
   for (const tag of document.querySelectorAll('.unitTag')) tag.textContent = `°${state.unit}`;
   render();
 });

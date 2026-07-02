@@ -180,6 +180,15 @@ html, body {
 .seg.is-active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
 
 .control--row { display: flex; gap: .55rem; }
+.control--row > .btn { flex: 1; }
+
+.control--units { justify-content: flex-end; }
+.segmented--units {
+  grid-template-columns: repeat(2, 1fr);
+  width: 9rem;
+  margin-left: auto;
+}
+.segmented--units .seg { padding: .5rem .2rem; font-size: .95rem; }
 .btn {
   appearance: none;
   border: 1px solid var(--line);
@@ -192,8 +201,7 @@ html, body {
   cursor: pointer;
 }
 .btn:active { transform: translateY(1px); }
-.btn--primary { flex: 1; background: var(--accent); color: #fff; border-color: transparent; }
-#unitBtn { min-width: 3.4rem; }
+.btn--primary { background: var(--accent); color: #fff; border-color: transparent; }
 
 .manual { border: 1px solid var(--line); border-radius: .8rem; background: var(--surface); }
 .manual > summary { padding: .8rem 1rem; cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--muted); }
@@ -215,5 +223,31 @@ html, body {
 .foot__place { font-size: .85rem; color: var(--muted); margin: 0 0 .5rem; }
 .foot__caveat { font-size: .78rem; line-height: 1.5; color: var(--muted); margin: 0; }
 .foot__v { font-size: .72rem; color: var(--muted); opacity: .7; margin: .6rem 0 0; }
+
+/* ---------- Map modal ---------- */
+.mapModal {
+  border: 0;
+  border-radius: 1rem;
+  padding: 0;
+  width: min(94vw, 30rem);
+  background: var(--surface);
+  color: var(--text);
+}
+.mapModal::backdrop { background: rgba(0, 0, 0, .55); }
+.mapModal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .8rem 1rem;
+}
+.mapModal__head h2 { margin: 0; font-size: 1.05rem; }
+.mapModal__close { padding: .35rem .7rem; }
+#map { width: 100%; height: min(55vh, 24rem); background: var(--surface-2); }
+.mapModal__hint {
+  margin: .6rem 1rem 0;
+  font-size: .82rem;
+  color: var(--muted);
+}
+.mapModal__confirm { display: block; width: calc(100% - 2rem); margin: .7rem 1rem 1rem; }
 
 [hidden] { display: none !important; }

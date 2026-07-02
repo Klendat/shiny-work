@@ -1,5 +1,5 @@
 /* Minimal cache-first service worker for the app shell. */
-const CACHE = 'can-i-sweat-v1';
+const CACHE = 'can-i-sweat-v2';
 const SHELL = [
   './',
   'index.html',
@@ -7,6 +7,8 @@ const SHELL = [
   'app.js',
   'manifest.webmanifest',
   'icons/icon.svg',
+  'vendor/leaflet/leaflet.js',
+  'vendor/leaflet/leaflet.css',
 ];
 
 self.addEventListener('install', (event) => {

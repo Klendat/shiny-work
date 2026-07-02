@@ -10,6 +10,7 @@
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon.svg" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
 </head>
 <body>
   <main class="app" id="app">
@@ -55,7 +56,14 @@
 
       <div class="control control--row">
         <button type="button" class="btn btn--primary" id="refreshBtn">Use my location</button>
-        <button type="button" class="btn" id="unitBtn" aria-label="Toggle temperature units">°C</button>
+        <button type="button" class="btn" id="mapBtn">Pick on map</button>
+      </div>
+
+      <div class="control control--row control--units">
+        <div class="segmented segmented--units" id="unitToggle" role="radiogroup" aria-label="Temperature units">
+          <button type="button" class="seg is-active" data-unit="C">°C</button>
+          <button type="button" class="seg" data-unit="F">°F</button>
+        </div>
       </div>
 
       <details class="manual" id="manualPanel">
@@ -86,6 +94,17 @@
     </footer>
   </main>
 
+  <dialog class="mapModal" id="mapModal">
+    <div class="mapModal__head">
+      <h2>Pick a location</h2>
+      <button type="button" class="btn mapModal__close" id="mapClose" aria-label="Close">✕</button>
+    </div>
+    <div id="map"></div>
+    <p class="mapModal__hint">Tap the map to drop a pin.</p>
+    <button type="button" class="btn btn--primary mapModal__confirm" id="mapConfirm" disabled>Use this location</button>
+  </dialog>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
