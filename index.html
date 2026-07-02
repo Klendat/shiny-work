@@ -57,11 +57,10 @@
       <fieldset class="control control--activity">
         <legend>How old are you?</legend>
         <div class="segmented segmented--age" id="ageGroup" role="radiogroup" aria-label="Age group">
-          <button type="button" class="seg" data-age="baby">Baby</button>
-          <button type="button" class="seg" data-age="toddler">Toddler</button>
+          <button type="button" class="seg" data-age="infant">Infant</button>
           <button type="button" class="seg" data-age="child">Child</button>
           <button type="button" class="seg is-active" data-age="adult">Adult</button>
-          <button type="button" class="seg" data-age="elderly">Elderly</button>
+          <button type="button" class="seg" data-age="older">65+</button>
         </div>
       </fieldset>
 
@@ -98,8 +97,10 @@
       <p class="foot__place" id="place"></p>
       <p class="foot__caveat">
         Estimate based on air physics — <strong>not medical advice</strong>.
-        Real risk also depends on hydration, sun exposure, acclimatization, age and
-        medication. Uses shade air temperature. If you feel unwell, stop and cool down.
+        It assumes you are <strong>not yet used to the heat</strong> (unacclimatized)
+        and in shade; sun, dehydration, fitness, illness and medication all shift real
+        risk. Danger thresholds follow recent wet-bulb research. If you feel unwell,
+        stop and cool down.
       </p>
       <p class="foot__v">v1 · a minutes-to-danger countdown is planned for v2</p>
     </footer>

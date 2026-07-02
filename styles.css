@@ -179,9 +179,9 @@ html, body {
 }
 .seg.is-active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
 
-/* Age selector: 5 options, so tighten to fit narrow screens. */
-.segmented--age { grid-template-columns: repeat(5, 1fr); }
-.segmented--age .seg { padding: .55rem .1rem; font-size: .72rem; white-space: nowrap; }
+/* Age selector: 4 options. */
+.segmented--age { grid-template-columns: repeat(4, 1fr); }
+.segmented--age .seg { white-space: nowrap; }
 
 .control--row { display: flex; gap: .55rem; }
 .control--row > .btn { flex: 1; }

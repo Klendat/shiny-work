@@ -11,11 +11,12 @@
  * ------------------------------------------------------------------ */
 
 const SKIN_TEMP = 35;      // °C, typical warm-skin temperature
-const H_RADIATIVE = 4.7;   // W/m²·K, linearized radiative coefficient
+const H_RADIATIVE = 4.5;   // W/m²·K, whole-body radiative coeff (de Dear 1997)
 const LEWIS = 16.5;        // W/m²·kPa per W/m²·K (Lewis relation for air)
-const MAX_SWEAT_COOLING = 500; // W/m² — peak evaporative cooling the body can
-                               // actually produce; the environment may allow
-                               // more, but you can't sweat faster than this.
+const MAX_SWEAT_COOLING = 450; // W/m² — peak evaporative cooling the body can
+                               // actually produce. ~350–400 for an average
+                               // unacclimatized adult, ~560+ for a fit,
+                               // acclimatized one; 450 is a conservative middle.
 
 // Metabolic heat production by activity (W/m² of body surface).
 const METABOLIC = {
@@ -25,21 +26,22 @@ const METABOLIC = {
   hard: 350,      // running, heavy labor (~6 MET)
 };
 
-// Age-group heat-vulnerability adjustments. Two effects, both well established:
-//   • offset  — degrees added to the perceived wet-bulb / air temperature for the
-//     risk tiers. Vulnerable groups reach danger at lower ambient heat, so we
-//     treat the environment as that many °C hotter than it is for them.
-//   • sweat   — fraction of an adult's evaporative (sweat) capacity they can
-//     produce. Infants barely sweat; older adults sweat less than they used to.
-// These are deliberately coarse risk adjustments, not per-person predictions.
+// Age-group heat-vulnerability adjustments. Two effects:
+//   • offset  — degrees added to the perceived wet-bulb / air temperature for
+//     the risk tiers. Vulnerable groups reach danger at lower ambient heat.
+//   • sweat   — fraction of an adult's evaporative (sweat) capacity.
+// Calibrated to the heat-physiology literature (Vecellio 2022, Wolf 2023,
+// Vanos 2023, Falk & Dotan 2008). Only three groups are actually distinguishable
+// from the data — children, healthy adults, older adults — so we use those;
+// "infant" is kept for parents but flagged as not calibratable (little hard
+// human data; much infant risk is caregiver dependence, not physiology).
+// These are coarse RISK adjustments, not per-person predictions.
 const AGE = {
-  baby:    { offset: 4.0, sweat: 0.35, vulnerable: true,
-             note: 'Babies overheat far faster than adults, can barely sweat, and can’t tell you they’re struggling — keep them cool and never leave them in a warm room or car.' },
-  toddler: { offset: 3.0, sweat: 0.55, vulnerable: true,
-             note: 'Toddlers heat up faster than adults and sweat less — keep them shaded, cool and drinking.' },
-  child:   { offset: 1.0, sweat: 0.80, vulnerable: false, note: '' },
-  adult:   { offset: 0.0, sweat: 1.00, vulnerable: false, note: '' },
-  elderly: { offset: 3.0, sweat: 0.65, vulnerable: true,
+  infant:  { offset: 3.5, sweat: 0.50, vulnerable: true, lowConfidence: true,
+             note: 'For infants and toddlers this is a rough guide only — there’s little hard data on infant heat limits, and much of the danger is being left in a hot room or car. Never leave a small child in the heat, and don’t rely on an app.' },
+  child:   { offset: 1.0, sweat: 0.70, vulnerable: false, lowConfidence: false, note: '' },
+  adult:   { offset: 0.0, sweat: 1.00, vulnerable: false, lowConfidence: false, note: '' },
+  older:   { offset: 2.5, sweat: 0.70, vulnerable: true, lowConfidence: false,
              note: 'Older adults sweat less, feel thirst less, and may take medications that reduce heat tolerance — take this more seriously than the numbers alone suggest.' },
 };
 
@@ -150,10 +152,12 @@ function evaluate(t, rh, windMs, activity, age) {
 //     in dry heat, but it can't be trusted to cool you when the air is this hot.
 function classify(w, Tw, t, age) {
   const result = pickVerdict(w, Tw, t, age);
-  // For vulnerable age groups, spell out why the risk is higher — but only
-  // when we're actually flagging something (warn/bad/crit), not on green.
-  if (age.vulnerable && age.note && result.level !== 'great' && result.level !== 'good') {
-    result.detail += ` ${age.note}`;
+  // Append the age note. Low-confidence groups (infants) always show it — the
+  // "don't rely on an app" message matters even in mild conditions. Others show
+  // it only when we're actually flagging something (warn/bad/crit).
+  if (age.note) {
+    const flagged = result.level !== 'great' && result.level !== 'good';
+    if (age.lowConfidence || flagged) result.detail += ` ${age.note}`;
   }
   return result;
 }
