@@ -1,0 +1,257 @@
+/* "The Thermometer" (design 1c) — the whole screen is the verdict.
+ * Full-bleed colour field that shifts with the calibrated risk tier. */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0f766e;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tc {
+  min-height: 100dvh;
+  display: flex;
+  color: #fff;
+  background: linear-gradient(170deg, #0f766e 0%, #15803d 100%);
+  transition: background 700ms ease;
+}
+.tc[data-tier="ok"]       { background: linear-gradient(170deg, #0f766e 0%, #15803d 100%); }
+.tc[data-tier="watch"]    { background: linear-gradient(170deg, #a16207 0%, #ca8a04 100%); }
+.tc[data-tier="high"]     { background: linear-gradient(170deg, #c2410c 0%, #ea580c 100%); }
+.tc[data-tier="over"]     { background: linear-gradient(170deg, #b91c1c 0%, #dc2626 100%); }
+.tc[data-tier="critical"] { background: linear-gradient(170deg, #7f1d1d 0%, #3f0808 100%); }
+
+.tc__content {
+  flex: 1;
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding:
+    calc(env(safe-area-inset-top) + 20px)
+    24px
+    calc(env(safe-area-inset-bottom) + 24px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.tc__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  opacity: 0.85;
+}
+.tc__brand { font-weight: 700; }
+.tc__place { font-weight: 500; text-align: right; padding-left: 12px; }
+
+/* Temperature */
+.tc__tempblock { margin-top: 22px; }
+.tc__temp {
+  font-size: clamp(72px, 27vw, 100px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.tc__meta {
+  margin-top: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* Verdict sentence */
+.tc__sentence {
+  margin: 24px 0 0;
+  font-size: 29px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 310px;
+  text-wrap: pretty;
+}
+
+/* Sweat load bar — pushed toward the bottom */
+.tc__load { margin-top: auto; padding-top: 24px; }
+.tc__loadlabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+.tc__track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+.tc__fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 500ms ease;
+}
+
+/* Segmented controls */
+.tc__control { margin-top: 20px; }
+.tc__control + .tc__control { margin-top: 12px; }
+.tc__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  opacity: 0.65;
+  margin-bottom: 6px;
+}
+.tc__seg {
+  display: flex;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 3px;
+}
+.seg {
+  flex: 1;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.seg.is-active { background: #fff; color: #1a1a1a; font-weight: 700; }
+@media (hover: hover) {
+  .seg:not(.is-active):hover { background: rgba(255, 255, 255, 0.10); }
+}
+#ageGroup .seg { font-size: 12px; }
+
+/* Primary pill */
+.tc__primary {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: rgba(0, 0, 0, 0.82);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.tc__primary:active { transform: translateY(1px); }
+
+/* Utility row */
+.tc__utility {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tc__link {
+  appearance: none;
+  border: none;
+  background: none;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.9;
+  cursor: pointer;
+  padding: 8px 2px;
+}
+.tc__seg--units { padding: 2px; flex: 0 0 auto; }
+.tc__seg--units .seg { flex: 0 0 auto; padding: 6px 12px; font-size: 11.5px; }
+
+.tc__link--manual {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+/* Manual entry */
+.tc__manual { margin-top: 10px; }
+.tc__manualgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.tc__manualgrid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.tc__manualgrid input {
+  font-family: inherit;
+  font-size: 15px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  width: 100%;
+}
+.tc__manualgrid input::placeholder { color: rgba(255, 255, 255, 0.5); }
+.tc__primary--manual { margin-top: 10px; }
+
+/* Caveat */
+.tc__caveat {
+  margin: 12px 0 0;
+  font-size: 9.5px;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+/* Map modal */
+.tc__mapmodal {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  width: min(94vw, 30rem);
+  background: #111;
+  color: #fff;
+  overflow: hidden;
+}
+.tc__mapmodal::backdrop { background: rgba(0, 0, 0, 0.55); }
+.tc__maphead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+.tc__maphead h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.tc__mapclose {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
+  cursor: pointer;
+}
+#map { width: 100%; height: min(55vh, 24rem); background: #222; }
+.tc__maphint { margin: 12px 16px 0; font-size: 12.5px; opacity: 0.75; }
+.tc__mapconfirm { width: calc(100% - 32px); margin: 12px 16px 16px; }
+
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tc, .tc__fill, .seg { transition: none; }
+}

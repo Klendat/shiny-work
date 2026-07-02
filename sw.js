@@ -1,9 +1,10 @@
 /* Minimal cache-first service worker for the app shell. */
-const CACHE = 'can-i-sweat-v6';
+const CACHE = 'can-i-sweat-v7';
 const SHELL = [
   './',
   'index.html',
   'styles.css',
+  'core.js',
   'app.js',
   'manifest.webmanifest',
   'icons/icon.svg',

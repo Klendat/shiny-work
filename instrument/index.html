@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0e14" />
+  <title>Can I Sweat? — Instrument</title>
+  <meta name="description" content="A cockpit gauge for whether your sweat can cool you." />
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="instrument.css" />
+</head>
+<body>
+  <main class="ins" id="root">
+    <div class="ins__wrap">
+      <header class="ins__header">
+        <span>CAN-I-SWEAT · V1</span>
+        <span id="place">—</span>
+      </header>
+
+      <div class="ins__gauge">
+        <svg viewBox="0 0 220 182" width="220" height="182" aria-hidden="true">
+          <circle class="ins__arcbg" cx="110" cy="110" r="84" fill="none" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="395.84 527.79" transform="rotate(135 110 110)"></circle>
+          <circle id="gaugeArc" class="ins__arc" cx="110" cy="110" r="84" fill="none" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="0 527.79" transform="rotate(135 110 110)"></circle>
+          <line x1="182" y1="110" x2="204" y2="110" stroke="#5c6878" stroke-width="2"></line>
+          <text x="206" y="100" fill="#5c6878" font-size="9" text-anchor="end" font-family="'IBM Plex Mono', monospace">LIMIT</text>
+        </svg>
+        <div class="ins__gaugecenter">
+          <div class="ins__gaugelabel">SWEAT LOAD</div>
+          <div class="ins__pct" id="pct">—</div>
+        </div>
+      </div>
+
+      <div class="ins__statusblock" aria-live="polite">
+        <div class="ins__status" id="status">▮ STANDBY</div>
+        <div class="ins__head" id="head">Locating you…</div>
+        <p class="ins__detail" id="detail">Reading the weather where you are.</p>
+      </div>
+
+      <div class="ins__grid">
+        <div class="ins__cell"><div class="ins__k">TEMP</div><div class="ins__v" id="cellTemp">—</div></div>
+        <div class="ins__cell"><div class="ins__k">HUMIDITY</div><div class="ins__v" id="cellHum">—</div></div>
+        <div class="ins__cell"><div class="ins__k">FEELS LIKE</div><div class="ins__v" id="cellFeels">—</div></div>
+        <div class="ins__cell"><div class="ins__k">WET-BULB ◂ KEY</div><div class="ins__v ins__v--tone" id="cellWet">—</div></div>
+      </div>
+
+      <div class="ins__control">
+        <div class="ins__label">ACTIVITY</div>
+        <div class="ins__seg" id="activity" role="radiogroup" aria-label="Activity level">
+          <button type="button" class="seg" data-activity="rest">REST</button>
+          <button type="button" class="seg is-active" data-activity="light">LIGHT</button>
+          <button type="button" class="seg" data-activity="moderate">MOD</button>
+          <button type="button" class="seg" data-activity="hard">HARD</button>
+        </div>
+      </div>
+
+      <div class="ins__control">
+        <div class="ins__label">AGE GROUP</div>
+        <div class="ins__seg" id="ageGroup" role="radiogroup" aria-label="Age group">
+          <button type="button" class="seg" data-age="infant">INFANT</button>
+          <button type="button" class="seg" data-age="child">CHILD</button>
+          <button type="button" class="seg is-active" data-age="adult">ADULT</button>
+          <button type="button" class="seg" data-age="older">65+</button>
+        </div>
+      </div>
+
+      <div class="ins__actions">
+        <button type="button" class="ins__btn ins__btn--primary" id="refreshBtn">USE MY LOCATION</button>
+        <button type="button" class="ins__btn" id="mapBtn">PICK ON MAP</button>
+      </div>
+
+      <div class="ins__foot">
+        <p class="ins__caveat">AIR-PHYSICS ESTIMATE — NOT MEDICAL ADVICE. USES SHADE TEMPERATURE. IF UNWELL, STOP AND COOL DOWN.</p>
+        <div class="ins__seg ins__seg--units" id="unitToggle" role="radiogroup" aria-label="Temperature units">
+          <button type="button" class="seg is-active" data-unit="C">°C</button>
+          <button type="button" class="seg" data-unit="F">°F</button>
+        </div>
+      </div>
+
+      <button type="button" class="ins__manualtoggle" id="manualToggle">▸ MANUAL ENTRY</button>
+      <div class="ins__manual" id="manualPanel" hidden>
+        <div class="ins__manualgrid">
+          <label><span>TEMP (<span class="unitTag">°C</span>)</span>
+            <input type="number" id="manualTemp" inputmode="decimal" step="0.1" placeholder="32" />
+          </label>
+          <label><span>HUMIDITY (%)</span>
+            <input type="number" id="manualHum" inputmode="numeric" min="0" max="100" step="1" placeholder="70" />
+          </label>
+          <label><span>WIND (KM/H)</span>
+            <input type="number" id="manualWind" inputmode="decimal" min="0" step="1" placeholder="10" />
+          </label>
+        </div>
+        <button type="button" class="ins__btn ins__btn--primary" id="applyManual">CALCULATE</button>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="ins__mapmodal" id="mapModal">
+    <div class="ins__maphead">
+      <h2>PICK A LOCATION</h2>
+      <button type="button" class="ins__mapclose" id="mapClose" aria-label="Close">✕</button>
+    </div>
+    <div id="map"></div>
+    <p class="ins__maphint">Tap the map to drop a pin.</p>
+    <button type="button" class="ins__btn ins__btn--primary ins__mapconfirm" id="mapConfirm" disabled>USE THIS LOCATION</button>
+  </dialog>
+
+  <script src="../vendor/leaflet/leaflet.js"></script>
+  <script src="../core.js"></script>
+  <script src="instrument.js"></script>
+</body>
+</html>
