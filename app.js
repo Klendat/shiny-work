@@ -111,7 +111,7 @@ function evaluate(t, rh, windMs, activity) {
     w = Ereq / Eusable;
   }
 
-  const level = classify(w, Tw);
+  const level = classify(w, Tw, t);
   return { t, rh, windMs, Tw, feels, M, Ereq, Emax, w, ...level };
 }
 
@@ -123,7 +123,11 @@ function evaluate(t, rh, windMs, activity) {
 //     regardless of effort. This is the well-established heat-stress metric.
 //   • Wettedness `w` says whether YOUR current effort outpaces evaporation.
 //     In cool air, w>1 just means "you'll warm up running" — not dangerous.
-function classify(w, Tw) {
+//   • Air temperature is a third floor: once it reaches skin temp (~35 °C) the
+//     air ADDS heat to you and sweat is your only cooling — so a low sweat load
+//     (often thanks to wind) must never read as "easy". Wind aids evaporation
+//     in dry heat, but it can't be trusted to cool you when the air is this hot.
+function classify(w, Tw, t) {
   // Wet-bulb at/above skin temp: evaporation is impossible for anyone.
   if (Tw >= 35) {
     return {
@@ -197,6 +201,23 @@ function classify(w, Tw) {
     };
   }
 
+  // Air at or above skin temperature: it's adding heat to you, and evaporating
+  // sweat is your ONLY cooling. Dry enough that wind still helps, but you're
+  // losing fluid fast and a lull in wind or rise in humidity tips you over.
+  if (t >= 35) {
+    return {
+      level: 'warn',
+      status: 'Hot — running on sweat alone',
+      headline: 'The air is adding heat',
+      detail:
+        'The air is hotter than your skin, so it’s warming you — only sweat ' +
+        'evaporating is cooling you. It’s dry enough that sweating works, but a hot ' +
+        'breeze won’t cool you (a humid one makes it worse), and you’re losing fluid ' +
+        'fast. Drink constantly, seek shade or AC, and don’t rely on the wind.',
+      meterHint: 'Cooling depends entirely on sweat evaporating — the air gives none back.',
+    };
+  }
+
   // Sweat is compensating — grade by how much margin is left.
   if (w > 0.85) {
     return {
@@ -209,9 +230,9 @@ function classify(w, Tw) {
       meterHint: 'Near the ~85% sustainable-sweat line — little headroom left.',
     };
   }
-  // Moderate load, OR warm-but-muggy air (wet-bulb 24–27 °C): comfortable, but
-  // not "nothing" — you'll feel it and should keep drinking.
-  if (w > 0.5 || Tw >= 24) {
+  // Moderate load, warm-but-muggy air (wet-bulb 24–27 °C), or simply hot air
+  // (≥33 °C): comfortable, but not "nothing" — you'll feel it and should drink.
+  if (w > 0.5 || Tw >= 24 || t >= 33) {
     return {
       level: 'good',
       status: 'Sweat is working',
