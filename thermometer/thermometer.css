@@ -49,7 +49,14 @@ html, body {
 .tc__place { font-weight: 500; text-align: right; padding-left: 12px; }
 
 /* Temperature */
-.tc__tempblock { margin-top: 22px; }
+.tc__tempblock {
+  margin-top: 22px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.tc__tempmain { min-width: 0; }
 .tc__temp {
   font-size: clamp(72px, 27vw, 100px);
   font-weight: 800;
@@ -62,6 +69,14 @@ html, body {
   font-weight: 500;
   opacity: 0.85;
 }
+
+/* Mugginess — star that retracts into a hard octagon, filling centre-out.
+   Deliberately monochrome (no teal): it rides the full-bleed danger colour, so
+   a white mark reads on every tier and never competes with the verdict hue. */
+.tc__muggy { flex: 0 0 auto; text-align: center; padding-top: 4px; }
+.tc__muggysvg { width: 74px; height: 74px; display: block; margin: 0 auto; }
+.tc__muggyword { margin-top: 5px; font-size: 13px; font-weight: 700; }
+.tc__muggylabel { font-size: 9px; letter-spacing: 0.14em; opacity: 0.65; margin-top: 1px; }
 
 /* Verdict sentence */
 .tc__sentence {

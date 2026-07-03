@@ -74,6 +74,48 @@ html, body {
   text-wrap: pretty;
 }
 
+/* Mugginess needle — a second instrument for dew point (moisture load),
+   deliberately neutral (foreground white, not --tone): mugginess is a comfort
+   reading, separate from the danger tone that drives the main gauge. */
+.ins__muggy { margin-top: 16px; border: 1px solid #1c2430; padding: 10px 12px 11px; }
+.ins__muggytop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ins__muggylabel { font-size: 9px; letter-spacing: 0.18em; color: #6b7686; }
+.ins__muggyword { font-size: 13px; letter-spacing: 0.06em; color: #e6ebf2; }
+.ins__muggyscale { position: relative; height: 12px; margin-top: 11px; }
+.ins__muggytrack {
+  position: absolute;
+  top: 5px; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #242c39, #4a5666);
+}
+.ins__muggyneedle {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  width: 2px;
+  height: 12px;
+  background: #e6ebf2;
+  transform: translateX(-50%);
+  transition: left 500ms ease;
+}
+.ins__muggyneedle::after {
+  content: "";
+  position: absolute;
+  top: -5px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #e6ebf2;
+}
+.ins__muggyticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #556070;
+}
+
 /* Readout grid */
 .ins__grid {
   margin-top: 16px;
@@ -192,5 +234,5 @@ html, body {
 [hidden] { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ins__arc, .seg { transition: none; }
+  .ins__arc, .seg, .ins__muggyneedle { transition: none; }
 }

@@ -22,8 +22,18 @@
       </header>
 
       <div class="tc__tempblock">
-        <div class="tc__temp" id="temp">—</div>
-        <div class="tc__meta" id="meta">&nbsp;</div>
+        <div class="tc__tempmain">
+          <div class="tc__temp" id="temp">—</div>
+          <div class="tc__meta" id="meta">&nbsp;</div>
+        </div>
+        <div class="tc__muggy" id="muggyBlock">
+          <svg class="tc__muggysvg" viewBox="0 0 120 120" role="img" aria-label="Mugginess">
+            <polygon id="muggyFill" fill="#fff" fill-opacity="0.9" stroke-linejoin="round"></polygon>
+            <polygon id="muggyLine" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"></polygon>
+          </svg>
+          <div class="tc__muggyword" id="muggyWord">—</div>
+          <div class="tc__muggylabel">MUGGINESS</div>
+        </div>
       </div>
 
       <h1 class="tc__sentence" id="sentence" aria-live="polite">Locating you…</h1>

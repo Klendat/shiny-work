@@ -13,6 +13,7 @@ const ACCENT = { ok: '#177245', watch: '#a07600', high: '#c25a10', over: '#c22d1
 const els = {
   status: document.getElementById('status'),
   word: document.getElementById('word'),
+  airWord: document.getElementById('airWord'),
   detail: document.getElementById('detail'),
   pct: document.getElementById('pct'),
   barFill: document.getElementById('barFill'),
@@ -48,8 +49,9 @@ function render(r, state) {
   els.barFill.style.background = accent;
   els.barFill.style.width = `${Math.min(100, pct)}%`;
 
+  els.airWord.textContent = r.muggy.word.toUpperCase();
   els.cellTemp.textContent = CIS.fmtTemp(r.t, state.unit);
-  els.cellHum.textContent = `${Math.round(r.rh)}%`;
+  els.cellHum.textContent = CIS.fmtTemp(r.dewC, state.unit);
   els.cellFeels.textContent = CIS.fmtTemp(r.feels, state.unit);
   els.cellWet.textContent = CIS.fmtTemp(r.Tw, state.unit);
   els.place.textContent = placeLabel(state.reading);
@@ -59,6 +61,7 @@ function showMessage(headline, detail, opts) {
   els.status.textContent = '';
   els.word.textContent = '—';
   els.word.style.color = '';
+  els.airWord.textContent = '—';
   els.detail.textContent = headline + (detail ? ` ${detail}` : '');
   els.pct.textContent = '—';
   els.barFill.style.width = '0%';

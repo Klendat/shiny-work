@@ -26,6 +26,9 @@ const els = {
   cellWet: document.getElementById('cellWet'),
   place: document.getElementById('place'),
   manualPanel: document.getElementById('manualPanel'),
+  muggyNeedle: document.getElementById('muggyNeedle'),
+  muggyWord: document.getElementById('muggyWord'),
+  muggyDew: document.getElementById('muggyDew'),
 };
 
 function placeLabel(reading) {
@@ -60,6 +63,10 @@ function render(r, state) {
   els.cellFeels.textContent = CIS.fmtTemp(r.feels, state.unit);
   els.cellWet.textContent = CIS.fmtTemp(r.Tw, state.unit);
   els.place.textContent = placeLabel(state.reading);
+
+  els.muggyNeedle.style.left = `${Math.round(r.muggy.f * 100)}%`;
+  els.muggyWord.textContent = r.muggy.word.toUpperCase();
+  els.muggyDew.textContent = CIS.fmtTemp(r.dewC, state.unit);
 }
 
 function showMessage(headline, detail, opts) {
@@ -68,6 +75,9 @@ function showMessage(headline, detail, opts) {
   els.detail.textContent = detail || '';
   els.pct.textContent = '—';
   setArc(0);
+  els.muggyNeedle.style.left = '0%';
+  els.muggyWord.textContent = '—';
+  els.muggyDew.textContent = '—';
   if (opts && opts.showManual && els.manualPanel) els.manualPanel.hidden = false;
 }
 

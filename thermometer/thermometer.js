@@ -20,10 +20,36 @@ const els = {
   loadFill: document.getElementById('loadFill'),
   place: document.getElementById('place'),
   manualPanel: document.getElementById('manualPanel'),
+  muggyFill: document.getElementById('muggyFill'),
+  muggyLine: document.getElementById('muggyLine'),
+  muggyWord: document.getElementById('muggyWord'),
 };
 
 // Degrees-only display (e.g. "33°"), honouring the current unit.
 const deg = (c, unit) => `${Math.round(CIS.toDisplay(c, unit))}°`;
+
+// A 4-point star: 8 vertices alternating outer R and inner R*k, 45° apart,
+// first vertex at top. As k→1 the vertices land on a regular octagon — so the
+// spiky (dry) star retracts into a hard octagon (oppressive).
+function starPoints(cx, cy, R, k) {
+  const pts = [];
+  for (let i = 0; i < 8; i++) {
+    const ang = -Math.PI / 2 + i * Math.PI / 4;
+    const rad = (i % 2 === 0) ? R : R * k;
+    pts.push(`${(cx + rad * Math.cos(ang)).toFixed(1)},${(cy + rad * Math.sin(ang)).toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+
+// Paint the mugginess mark: outline morphs spiky→octagon with dew point, and a
+// same-shape fill grows from the centre out to the edge (both driven by m.f).
+function drawMuggy(m) {
+  const f = m ? m.f : 0;
+  const k = 0.40 + f * 0.60;
+  els.muggyLine.setAttribute('points', starPoints(60, 60, 52, k));
+  els.muggyFill.setAttribute('points', starPoints(60, 60, 52 * f, k));
+  els.muggyWord.textContent = m ? m.word : '—';
+}
 
 function setTier(tier) {
   root.dataset.tier = tier;
@@ -44,8 +70,9 @@ function render(r, state) {
 
   els.temp.textContent = deg(r.t, state.unit);
   els.meta.textContent =
-    `feels like ${deg(r.feels, state.unit)} · humidity ${Math.round(r.rh)}% · wet-bulb ${deg(r.Tw, state.unit)}`;
+    `feels like ${deg(r.feels, state.unit)} · wet-bulb ${deg(r.Tw, state.unit)}`;
   els.sentence.textContent = r.headline;
+  drawMuggy(r.muggy);
 
   const crit = r.w === Infinity;
   const pct = crit ? 120 : Math.min(120, Math.round(r.w * 100));
@@ -63,6 +90,7 @@ function showMessage(headline, detail, opts) {
   els.sentence.textContent = headline;
   els.loadValue.textContent = '—';
   els.loadFill.style.width = '0%';
+  drawMuggy(null);
   if (opts && opts.showManual && els.manualPanel) els.manualPanel.hidden = false;
 }
 

@@ -100,6 +100,38 @@
     return Math.max(3.1, 8.3 * Math.sqrt(v)); // 3.1 ≈ still-air natural convection
   }
 
+  // Dew-point temperature (°C) from air temp (°C) and RH (%). Magnus-Tetens.
+  function dewPoint(t, rh) {
+    const r = Math.max(1, Math.min(100, rh));
+    const a = 17.27, b = 237.7;
+    const g = (a * t) / (b + t) + Math.log(r / 100);
+    return (b * g) / (a - g);
+  }
+
+  // Mugginess — a SEPARATE axis from the danger verdict. It answers "how muggy
+  // does the air feel", which is governed by absolute moisture (dew point),
+  // independent of temperature: your skin is a fixed ~35 °C vapour source, so
+  // only the air's dew point changes how fast sweat can evaporate. High dew
+  // point → sweat lingers → clammy, even when the danger verdict is fine.
+  // This is comfort, not safety, and never changes the verdict.
+  //
+  // Word buckets follow the meteorological dew-point comfort scale. `f` is a
+  // 0–1 fraction over the 6–26 °C dew-point range, used by the design pages to
+  // drive their visual (star→octagon fill, needle position, etc.).
+  const MUGGY_WORDS = [
+    { max: 13, word: 'Dry' },
+    { max: 16, word: 'Comfortable' },
+    { max: 19, word: 'Slightly sticky' },
+    { max: 22, word: 'Sticky' },
+    { max: 25, word: 'Muggy' },
+    { max: Infinity, word: 'Oppressive' },
+  ];
+  function mugginess(dewC) {
+    const bucket = MUGGY_WORDS.find((b) => dewC < b.max) || MUGGY_WORDS[MUGGY_WORDS.length - 1];
+    const f = Math.max(0, Math.min(1, (dewC - 6) / (26 - 6)));
+    return { dewC, word: bucket.word, f };
+  }
+
   /**
    * Core evaluation. Returns everything the UI needs.
    * @param {number} t    air temperature (°C)
@@ -111,6 +143,7 @@
   function evaluate(t, rh, windMs, activity, age) {
     const Tw = wetBulb(t, rh);
     const feels = heatIndex(t, rh);
+    const dewC = dewPoint(t, rh);
     const ageAdj = AGE[age] ?? AGE.adult;
 
     const M = METABOLIC[activity] ?? METABOLIC.light;
@@ -144,7 +177,7 @@
     }
 
     const level = classify(w, Tw, t, ageAdj);
-    return { t, rh, windMs, Tw, feels, M, Ereq, Emax, w, ...level };
+    return { t, rh, windMs, Tw, feels, dewC, muggy: mugginess(dewC), M, Ereq, Emax, w, ...level };
   }
 
   // Map wettedness (is sweat sufficient for this effort?) plus the absolute
@@ -649,7 +682,7 @@
 
   const CIS = {
     // model
-    evaluate, wetBulb, heatIndex, satVaporPressure, convectiveCoeff,
+    evaluate, wetBulb, heatIndex, dewPoint, mugginess, satVaporPressure, convectiveCoeff,
     SKIN_TEMP, METABOLIC, AGE,
     // design mapping
     TIER_FROM_LEVEL, TIER_WORD,
