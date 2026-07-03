@@ -1,5 +1,9 @@
-/* Minimal cache-first service worker for the app shell. */
-const CACHE = 'can-i-sweat-v11';
+/* Service worker for the app shell.
+ * Our own files are served NETWORK-FIRST (fall back to cache offline) so a
+ * deploy is always picked up whole — a fresh HTML page can never end up paired
+ * with a stale cached script. Third-party assets (fonts, map tiles) stay
+ * cache-first since they rarely change and benefit from instant loads. */
+const CACHE = 'can-i-sweat-v12';
 const SHELL = [
   './',
   'index.html',
@@ -35,12 +39,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App shell: cache-first, fall back to network and populate the cache.
+  // Our own files: network-first, refreshing the cache on every successful
+  // fetch; fall back to the cached copy only when offline.
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(request).then((c) => c || caches.match('./')))
+    );
+    return;
+  }
+
+  // Third-party assets (fonts, map tiles): cache-first, populate on first fetch.
   event.respondWith(
     caches.match(request).then((cached) =>
       cached ||
       fetch(request).then((res) => {
-        if (res.ok && url.origin === self.location.origin) {
+        if (res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(request, copy));
         }
