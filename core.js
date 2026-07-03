@@ -119,12 +119,12 @@
   // 0–1 fraction over the 6–26 °C dew-point range, used by the design pages to
   // drive their visual (star→octagon fill, needle position, etc.).
   const MUGGY_WORDS = [
-    { max: 13, word: 'Dry' },
-    { max: 16, word: 'Comfortable' },
-    { max: 19, word: 'Slightly sticky' },
-    { max: 22, word: 'Sticky' },
-    { max: 25, word: 'Muggy' },
-    { max: Infinity, word: 'Oppressive' },
+    { max: 13, word: 'Dry' },          // sweat flashes off instantly
+    { max: 16, word: 'Comfortable' },  // evaporates easily
+    { max: 19, word: 'Humid' },        // you notice it
+    { max: 22, word: 'Sticky' },       // slow to dry, skin feels tacky
+    { max: 25, word: 'Clammy' },       // you stay damp, never quite dry
+    { max: Infinity, word: 'Soupy' },  // air is saturated; barely any evaporation
   ];
   function mugginess(dewC) {
     const bucket = MUGGY_WORDS.find((b) => dewC < b.max) || MUGGY_WORDS[MUGGY_WORDS.length - 1];

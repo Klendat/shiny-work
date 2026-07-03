@@ -51,7 +51,7 @@ function render(r, state) {
 
   els.airWord.textContent = r.muggy.word.toUpperCase();
   els.cellTemp.textContent = CIS.fmtTemp(r.t, state.unit);
-  els.cellHum.textContent = CIS.fmtTemp(r.dewC, state.unit);
+  els.cellHum.textContent = `${r.muggy.word} (${Math.round(CIS.toDisplay(r.dewC, state.unit))}°)`;
   els.cellFeels.textContent = CIS.fmtTemp(r.feels, state.unit);
   els.cellWet.textContent = CIS.fmtTemp(r.Tw, state.unit);
   els.place.textContent = placeLabel(state.reading);
