@@ -123,7 +123,7 @@
     { max: 16, word: 'Comfortable' },  // evaporates easily
     { max: 19, word: 'Humid' },        // you notice it
     { max: 22, word: 'Sticky' },       // slow to dry, skin feels tacky
-    { max: 25, word: 'Clammy' },       // you stay damp, never quite dry
+    { max: 25, word: 'Damp' },         // you stay damp, never quite dry
     { max: Infinity, word: 'Soupy' },  // air is saturated; barely any evaporation
   ];
   function mugginess(dewC) {
