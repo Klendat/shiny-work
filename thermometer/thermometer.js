@@ -23,6 +23,7 @@ const els = {
   muggyFill: document.getElementById('muggyFill'),
   muggyLine: document.getElementById('muggyLine'),
   muggyWord: document.getElementById('muggyWord'),
+  muggyDew: document.getElementById('muggyDew'),
 };
 
 // Degrees-only display (e.g. "33°"), honouring the current unit.
@@ -73,6 +74,7 @@ function render(r, state) {
     `feels like ${deg(r.feels, state.unit)} · wet-bulb ${deg(r.Tw, state.unit)}`;
   els.sentence.textContent = r.headline;
   drawMuggy(r.muggy);
+  els.muggyDew.textContent = `DEW PT ${deg(r.dewC, state.unit)}`;
 
   const crit = r.w === Infinity;
   const pct = crit ? 120 : Math.min(120, Math.round(r.w * 100));
@@ -91,6 +93,7 @@ function showMessage(headline, detail, opts) {
   els.loadValue.textContent = '—';
   els.loadFill.style.width = '0%';
   drawMuggy(null);
+  els.muggyDew.innerHTML = '&nbsp;';
   if (opts && opts.showManual && els.manualPanel) els.manualPanel.hidden = false;
 }
 
