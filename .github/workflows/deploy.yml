@@ -3,7 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - claude/heat-sweat-effectiveness-app-6569v3
+      # Only main publishes: the github-pages environment is restricted to the
+      # default branch, so feature-branch runs can never deploy — they would
+      # only contend for the `pages` concurrency group below and cancel the
+      # real main deploy. Keep this list to main alone.
       - main
   workflow_dispatch:
 
