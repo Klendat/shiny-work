@@ -1,11 +1,11 @@
 /* Can I Sweat? — shared core
  * The calibrated physiology/thermodynamics model plus the data, geolocation,
- * unit, preference and map-picker helpers shared by the main app (app.js) and
- * the alternate design pages (poster/, instrument/, thermometer/).
+ * unit, preference and map-picker helpers shared by both views: the default
+ * Thermometer (root: index.html + thermometer.js) and the Poster (poster/).
  *
  * Everything is exposed on a single global, `window.CIS`. This is a classic
  * script (no build step, no modules) so it can be shared by the equally-classic
- * app.js and by the sub-pages, and so the service worker keeps working.
+ * per-view controllers, and so the service worker keeps working.
  *
  * IMPORTANT: the model below (constants through pickVerdict) is the canonical,
  * literature-calibrated version. Keep it byte-identical to its history — the
@@ -539,7 +539,7 @@
    *   activity, ageGroup, unitToggle, refreshBtn, mapBtn, place,
    *   mapModal, map, mapClose, mapConfirm,
    *   manualToggle, manualPanel, manualTemp, manualHum, manualWind, applyManual
-   * The main app (app.js) does its own wiring and does not use this.
+   * Both views (Thermometer and Poster) drive themselves through this.
    */
   function createApp({ render, showMessage }) {
     const el = (id) => document.getElementById(id);
@@ -788,6 +788,6 @@
 
   const root = typeof window !== 'undefined' ? window : globalThis;
   root.CIS = CIS;
-  // Kept for quick console/unit checks (parity with the original app.js).
+  // Kept for quick console/unit checks.
   root.__canISweat = { evaluate, wetBulb, heatIndex };
 })();

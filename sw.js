@@ -3,17 +3,21 @@
  * deploy is always picked up whole — a fresh HTML page can never end up paired
  * with a stale cached script. Third-party assets (fonts, map tiles) stay
  * cache-first since they rarely change and benefit from instant loads. */
-const CACHE = 'can-i-sweat-v14';
+const CACHE = 'can-i-sweat-v15';
 const SHELL = [
   './',
   'index.html',
-  'styles.css',
+  'thermometer.css',
+  'thermometer.js',
   'core.js',
-  'app.js',
   'manifest.webmanifest',
   'icons/icon.svg',
   'vendor/leaflet/leaflet.js',
   'vendor/leaflet/leaflet.css',
+  'poster/',
+  'poster/index.html',
+  'poster/poster.css',
+  'poster/poster.js',
 ];
 
 self.addEventListener('install', (event) => {

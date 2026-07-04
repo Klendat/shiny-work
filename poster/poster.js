@@ -69,3 +69,10 @@ function showMessage(headline, detail, opts) {
 }
 
 CIS.createApp({ render, showMessage });
+
+// Register the service worker (lives at the site root) for offline / install.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('../sw.js').catch(() => {});
+  });
+}

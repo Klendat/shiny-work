@@ -44,7 +44,7 @@ down regardless of what the app says.
 
 - **v2:** a "minutes of safe exposure" countdown — converting an evaporative
   overload into an estimated time-to-danger via a core-temperature heat-storage
-  model. The model in `app.js` already computes the heat-storage rate needed for
+  model. The model in `core.js` already computes the heat-storage rate needed for
   this.
 
 ## Run locally
@@ -66,13 +66,21 @@ branch (and `main`). **One-time setup:** in the repository, go to
 **GitHub Actions**. After the next push the workflow deploys and prints the live
 URL in its summary.
 
+## Two views
+
+The default screen is **The Thermometer** — the whole screen is the verdict, its
+colour shifting with risk. A second **Poster** view (editorial, ink-on-paper) is
+at [`/poster`](poster/). A tiny link at the bottom of each switches to the other;
+both share the same engine, weather and calibrated verdict.
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | Single-screen mobile UI |
-| `styles.css` | Mobile-first, dark/light, color-coded verdict |
-| `app.js` | Geolocation, weather fetch, the physiology model, DOM updates |
+| `index.html` | Default view — the full-screen "Thermometer" verdict |
+| `thermometer.css` / `thermometer.js` | Styling and controller for the default view |
+| `poster/` | Alternate "Poster" view served at `/poster` |
+| `core.js` | Shared engine: geolocation, weather fetch, physiology model, state |
 | `manifest.webmanifest`, `icons/` | PWA install metadata |
-| `sw.js` | Cache-first service worker (offline shell) |
+| `sw.js` | Network-first service worker (offline shell) |
 | `.github/workflows/deploy.yml` | GitHub Pages deploy |

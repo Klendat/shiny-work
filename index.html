@@ -3,121 +3,114 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="theme-color" content="#0f766e" />
   <title>Can I Sweat?</title>
-  <meta name="description" content="Instantly tells you whether the current temperature and humidity let your sweat cool you, or whether you need to cool down another way." />
+  <meta name="description" content="Whether your sweat can cool you — the whole screen is the verdict." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon.svg" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="thermometer.css" />
 </head>
 <body>
-  <main class="app" id="app">
-    <!-- Verdict banner -->
-    <section class="verdict" id="verdict" aria-live="polite">
-      <p class="verdict__status" id="statusLine">Checking conditions…</p>
-      <h1 class="verdict__headline" id="headline">Locating you…</h1>
-      <p class="verdict__detail" id="detail">Allow location access to read the weather where you are.</p>
-    </section>
+  <main class="tc" id="root" data-tier="ok">
+    <div class="tc__content">
+      <header class="tc__header">
+        <span class="tc__brand">Can I sweat?</span>
+        <span class="tc__place" id="place"></span>
+      </header>
 
-    <!-- Effectiveness meter -->
-    <section class="meter" id="meterSection" hidden>
-      <div class="meter__labels">
-        <span>Sweat load</span>
-        <span id="meterValue">—</span>
+      <div class="tc__tempblock">
+        <div class="tc__tempmain">
+          <div class="tc__temp" id="temp">—</div>
+          <div class="tc__meta" id="meta">&nbsp;</div>
+        </div>
+        <div class="tc__muggy" id="muggyBlock">
+          <svg class="tc__muggysvg" viewBox="0 0 120 120" role="img" aria-label="Mugginess">
+            <polygon id="muggyFill" fill="#fff" fill-opacity="0.9" stroke-linejoin="round"></polygon>
+            <polygon id="muggyLine" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"></polygon>
+          </svg>
+          <div class="tc__muggyword" id="muggyWord">—</div>
+          <div class="tc__muggylabel" id="muggyDew">&nbsp;</div>
+        </div>
       </div>
-      <div class="meter__track" role="img" aria-label="How hard your sweating is working">
-        <div class="meter__fill" id="meterFill"></div>
-        <div class="meter__limit" title="~85% — the highest sweat rate you can sustain"></div>
-      </div>
-      <p class="meter__hint" id="meterHint"></p>
-    </section>
 
-    <!-- Readout chips -->
-    <section class="chips" id="chips" hidden>
-      <div class="chip"><span class="chip__label">Temperature</span><span class="chip__value" id="chipTemp">—</span></div>
-      <div class="chip"><span class="chip__label">Humidity</span><span class="chip__value" id="chipHum">—</span></div>
-      <div class="chip"><span class="chip__label">Feels like</span><span class="chip__value" id="chipFeels">—</span></div>
-      <div class="chip"><span class="chip__label">Wet-bulb</span><span class="chip__value" id="chipWetbulb">—</span></div>
-    </section>
+      <h1 class="tc__sentence" id="sentence" aria-live="polite">Locating you…</h1>
 
-    <!-- Controls -->
-    <section class="controls">
-      <fieldset class="control control--activity">
-        <legend>What are you doing?</legend>
-        <div class="segmented" id="activity" role="radiogroup" aria-label="Activity level">
+      <section class="tc__load" id="loadBlock" aria-label="Sweat load">
+        <div class="tc__loadlabels">
+          <span>Sweat load</span>
+          <span id="loadValue">—</span>
+        </div>
+        <div class="tc__track"><div class="tc__fill" id="loadFill"></div></div>
+      </section>
+
+      <div class="tc__control">
+        <div class="tc__label">WHAT ARE YOU DOING?</div>
+        <div class="tc__seg" id="activity" role="radiogroup" aria-label="Activity level">
           <button type="button" class="seg" data-activity="rest">Resting</button>
           <button type="button" class="seg is-active" data-activity="light">Light</button>
           <button type="button" class="seg" data-activity="moderate">Moderate</button>
           <button type="button" class="seg" data-activity="hard">Hard</button>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="control control--activity">
-        <legend>How old are you?</legend>
-        <div class="segmented segmented--age" id="ageGroup" role="radiogroup" aria-label="Age group">
+      <div class="tc__control">
+        <div class="tc__label">HOW OLD ARE YOU?</div>
+        <div class="tc__seg" id="ageGroup" role="radiogroup" aria-label="Age group">
           <button type="button" class="seg" data-age="infant">Infant</button>
           <button type="button" class="seg" data-age="child">Child</button>
           <button type="button" class="seg is-active" data-age="adult">Adult</button>
           <button type="button" class="seg" data-age="older">65+</button>
         </div>
-      </fieldset>
-
-      <div class="control control--row">
-        <button type="button" class="btn btn--primary" id="refreshBtn">Use my location</button>
-        <button type="button" class="btn" id="mapBtn">Pick on map</button>
       </div>
 
-      <div class="control control--row control--units">
-        <div class="segmented segmented--units" id="unitToggle" role="radiogroup" aria-label="Temperature units">
+      <button type="button" class="tc__primary" id="refreshBtn">Use my location</button>
+
+      <div class="tc__utility">
+        <button type="button" class="tc__link" id="mapBtn">Pick on map instead</button>
+        <div class="tc__seg tc__seg--units" id="unitToggle" role="radiogroup" aria-label="Temperature units">
           <button type="button" class="seg is-active" data-unit="C">°C</button>
           <button type="button" class="seg" data-unit="F">°F</button>
         </div>
       </div>
 
-      <details class="manual" id="manualPanel">
-        <summary>Enter conditions manually</summary>
-        <div class="manual__grid">
-          <label><span>Temperature (<span class="unitTag">°C</span>)</span>
-            <input type="number" id="manualTemp" inputmode="decimal" step="0.1" placeholder="e.g. 32" />
+      <button type="button" class="tc__link tc__link--manual" id="manualToggle">Enter conditions manually</button>
+      <div class="tc__manual" id="manualPanel" hidden>
+        <div class="tc__manualgrid">
+          <label><span>Temp (<span class="unitTag">°C</span>)</span>
+            <input type="number" id="manualTemp" inputmode="decimal" step="0.1" placeholder="32" />
           </label>
           <label><span>Humidity (%)</span>
-            <input type="number" id="manualHum" inputmode="numeric" min="0" max="100" step="1" placeholder="e.g. 70" />
+            <input type="number" id="manualHum" inputmode="numeric" min="0" max="100" step="1" placeholder="70" />
           </label>
-          <label><span>Wind (km/h, optional)</span>
-            <input type="number" id="manualWind" inputmode="decimal" min="0" step="1" placeholder="e.g. 10" />
+          <label><span>Wind (km/h)</span>
+            <input type="number" id="manualWind" inputmode="decimal" min="0" step="1" placeholder="10" />
           </label>
         </div>
-        <button type="button" class="btn btn--primary" id="applyManual">Calculate</button>
-      </details>
-    </section>
+        <button type="button" class="tc__primary tc__primary--manual" id="applyManual">Calculate</button>
+      </div>
 
-    <footer class="foot">
-      <p class="foot__place" id="place"></p>
-      <p class="foot__caveat">
-        Estimate based on air physics — <strong>not medical advice</strong>.
-        It assumes you are <strong>not yet used to the heat</strong> (unacclimatized)
-        and in shade; sun, dehydration, fitness, illness and medication all shift real
-        risk. Danger thresholds follow recent wet-bulb research. If you feel unwell,
-        stop and cool down.
-      </p>
-      <p class="foot__v">v1 · a minutes-to-danger countdown is planned for v2</p>
-    </footer>
+      <p class="tc__caveat">Air-physics estimate — not medical advice. Uses shade temperature. If you feel unwell, stop and cool down.</p>
+      <a class="tc__skinlink" href="poster/">Poster view →</a>
+    </div>
   </main>
 
-  <dialog class="mapModal" id="mapModal">
-    <div class="mapModal__head">
+  <dialog class="tc__mapmodal" id="mapModal">
+    <div class="tc__maphead">
       <h2>Pick a location</h2>
-      <button type="button" class="btn mapModal__close" id="mapClose" aria-label="Close">✕</button>
+      <button type="button" class="tc__mapclose" id="mapClose" aria-label="Close">✕</button>
     </div>
     <div id="map"></div>
-    <p class="mapModal__hint">Tap the map to drop a pin.</p>
-    <button type="button" class="btn btn--primary mapModal__confirm" id="mapConfirm" disabled>Use this location</button>
+    <p class="tc__maphint">Tap the map to drop a pin.</p>
+    <button type="button" class="tc__primary tc__mapconfirm" id="mapConfirm" disabled>Use this location</button>
   </dialog>
 
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="core.js"></script>
-  <script src="app.js"></script>
+  <script src="thermometer.js"></script>
 </body>
 </html>

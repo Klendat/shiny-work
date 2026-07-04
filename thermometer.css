@@ -232,6 +232,19 @@ html, body {
   opacity: 0.7;
 }
 
+/* Tiny link to the alternate (Poster) view */
+.tc__skinlink {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.55;
+}
+
 /* Map modal */
 .tc__mapmodal {
   border: none;
