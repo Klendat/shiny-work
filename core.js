@@ -581,6 +581,35 @@
       if (els.manualHum) els.manualHum.value = Math.round(rh);
     }
 
+    /* ------------------------------------------------------------------ *
+     * Auto-refresh for a left-open display (e.g. a wall-mounted screen).
+     * ------------------------------------------------------------------ *
+     * Every REFRESH_MS, while the tab is visible, silently re-pull weather
+     * for the last known coordinates. It never re-prompts geolocation and
+     * never flashes the loading state; a manual reading is left untouched, and
+     * a transient network failure keeps the last good values on screen. */
+    const REFRESH_MS = 15 * 60 * 1000;
+    let lastFetchAt = 0; // ms epoch of the last successful weather fetch
+
+    async function refreshReading() {
+      const rd = state.reading;
+      if (!rd || rd.lat == null || rd.source === 'manual') return;
+      try {
+        const reading = await fetchWeather(rd.lat, rd.lon);
+        state.reading = { ...rd, ...reading }; // keep source/place/coords
+        lastFetchAt = Date.now();
+        update();
+      } catch {
+        /* keep showing the last good reading on a transient failure */
+      }
+    }
+
+    function maybeAutoRefresh() {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      if (Date.now() - lastFetchAt < REFRESH_MS) return;
+      refreshReading();
+    }
+
     async function locate() {
       showMessage('Locating you…', 'Reading the weather where you are.', {});
       if (els.refreshBtn) els.refreshBtn.disabled = true;
@@ -605,6 +634,7 @@
           placeName ? Promise.resolve(placeName) : reverseGeocode(lat, lon),
         ]);
         state.reading = { ...reading, source, placeName: revName || placeName, lat, lon };
+        lastFetchAt = Date.now();
         update();
       } catch (err) {
         locationError(err);
@@ -680,6 +710,7 @@
           reverseGeocode(lat, lon),
         ]);
         state.reading = { ...reading, source: 'map', placeName, lat, lon };
+        lastFetchAt = Date.now();
         update();
       } catch (err) {
         showMessage('Couldn’t get the weather',
@@ -720,7 +751,17 @@
 
     locate();
 
-    return { state, update, showMessage: (h, d, o) => showMessage(h, d, o || {}) };
+    // Keep a left-open display current: tick every minute (cheap; only fetches
+    // when visible and due) and top up immediately whenever the tab is shown
+    // again after being hidden/asleep.
+    if (typeof window !== 'undefined') {
+      window.setInterval(maybeAutoRefresh, 60 * 1000);
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', maybeAutoRefresh);
+      }
+    }
+
+    return { state, update, showMessage: (h, d, o) => showMessage(h, d, o || {}), refreshReading };
   }
 
   /* ------------------------------------------------------------------ *
