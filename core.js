@@ -367,6 +367,23 @@
     };
   }
 
+  // Approximate location from the caller's IP — no GPS and no permission
+  // prompt, city-level accuracy (plenty for regional weather). Used only as a
+  // fallback when precise geolocation is unavailable or times out. GeoJS is
+  // free, needs no key, and is HTTPS + CORS-enabled (same constraints as the
+  // weather API). The returned place carries a leading "≈" so it always reads
+  // as approximate.
+  async function ipLocate() {
+    const res = await withTimeout(fetch('https://get.geojs.io/v1/ip/geo.json'), 8000);
+    if (!res.ok) throw new Error(`IP location failed (${res.status})`);
+    const d = await res.json();
+    const lat = parseFloat(d.latitude);
+    const lon = parseFloat(d.longitude);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) throw new Error('IP location unavailable');
+    const where = [d.city, d.region].filter(Boolean).join(', ') || d.country || null;
+    return { lat, lon, place: where ? `≈ ${where}` : null };
+  }
+
   // Best-effort reverse geocode for a friendly place label (no key needed).
   async function reverseGeocode(lat, lon) {
     try {
@@ -380,6 +397,23 @@
     } catch {
       return null;
     }
+  }
+
+  // Reject with a `.code === 'TIMEOUT'` error if `promise` hasn't settled in
+  // `ms`. Guards against browsers that ignore the geolocation `timeout` option
+  // (some e-reader WebKit builds) and would otherwise hang us forever.
+  function withTimeout(promise, ms) {
+    return new Promise((resolve, reject) => {
+      const id = setTimeout(() => {
+        const e = new Error('Timed out');
+        e.code = 'TIMEOUT';
+        reject(e);
+      }, ms);
+      promise.then(
+        (v) => { clearTimeout(id); resolve(v); },
+        (e) => { clearTimeout(id); reject(e); }
+      );
+    });
   }
 
   // Promise wrapper around geolocation. Rejects with a GeolocationPositionError
@@ -551,13 +585,26 @@
       showMessage('Locating you…', 'Reading the weather where you are.', {});
       if (els.refreshBtn) els.refreshBtn.disabled = true;
       try {
-        const pos = await getPosition();
-        const { latitude, longitude } = pos.coords;
-        const [reading, placeName] = await Promise.all([
-          fetchWeather(latitude, longitude),
-          reverseGeocode(latitude, longitude),
+        let lat, lon, placeName = null, source;
+        try {
+          const pos = await withTimeout(getPosition(), 12000);
+          ({ latitude: lat, longitude: lon } = pos.coords);
+          source = 'gps';
+        } catch (geoErr) {
+          // Respect an explicit denial — don't silently IP-track the user.
+          if (geoErr && geoErr.code === 1) throw geoErr;
+          // Unavailable / timed out / position error → fall back to IP.
+          showMessage('Estimating your location…',
+            'Precise location unavailable — using your approximate network location.', {});
+          const ip = await ipLocate();
+          ({ lat, lon, place: placeName } = ip);
+          source = 'ip';
+        }
+        const [reading, revName] = await Promise.all([
+          fetchWeather(lat, lon),
+          placeName ? Promise.resolve(placeName) : reverseGeocode(lat, lon),
         ]);
-        state.reading = { ...reading, source: 'gps', placeName, lat: latitude, lon: longitude };
+        state.reading = { ...reading, source, placeName: revName || placeName, lat, lon };
         update();
       } catch (err) {
         locationError(err);
@@ -687,7 +734,7 @@
     // design mapping
     TIER_FROM_LEVEL, TIER_WORD,
     // data / geolocation
-    fetchWeather, reverseGeocode, getPosition,
+    fetchWeather, reverseGeocode, ipLocate, getPosition,
     // units
     toDisplay, fmtTemp,
     // prefs
