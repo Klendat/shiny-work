@@ -223,7 +223,6 @@
         detail:
           'The air is so warm and humid that sweat will not evaporate at all. Get to ' +
           'shade, air conditioning or cold water now — sweating cannot help here.',
-        meterHint: 'Evaporation is effectively zero at this wet-bulb temperature.',
       };
     }
 
@@ -242,7 +241,6 @@
           'The wet-bulb temperature is in the dangerous range — sweat can barely ' +
           'evaporate even at rest. Seek shade/AC, wet the skin, and limit exertion. ' +
           fanAdvice(t) + ' Core temperature can climb here.',
-        meterHint: 'Wet-bulb this high leaves almost no evaporative capacity.',
       };
     }
 
@@ -258,7 +256,6 @@
             'At this effort you’re making more heat than the warm, humid air lets you ' +
             'sweat off. Core temperature will rise. Ease off, seek shade/AC, and wet the ' +
             'skin. ' + fanAdvice(t),
-          meterHint: 'Above 100%: sweat can’t evaporate fast enough for this effort.',
         };
       }
       // Cool air but hard effort — normal, self-limiting, not dangerous.
@@ -269,7 +266,6 @@
         detail:
           'Working hard enough to outpace evaporation means warming up — the air ' +
           'itself is cool, but this might be dangerous. Ease off or hydrate and it settles.',
-        meterHint: 'Above 100%, but cool air keeps this safe — just expect to run hot.',
       };
     }
 
@@ -285,9 +281,6 @@
           'Sweat is keeping up for now, but this is a genuinely hot, humid ' +
           'environment. Expect heavy sweating and fluid loss — drink plenty, ' +
           'rest in shade or AC, and avoid hard exertion.',
-        meterHint:
-          'The sweat load may look modest, but the air itself is hot — heat still ' +
-          'strains the body here.',
       };
     }
 
@@ -305,7 +298,6 @@
           'evaporation faster than it adds heat — but only while you keep sweating and ' +
           'stay hydrated, and a more humid wind would tip the other way. Fluid is going ' +
           'fast, so drink constantly and seek shade or AC.',
-        meterHint: 'Cooling depends entirely on sweat evaporating — the air gives none back.',
       };
     }
 
@@ -318,7 +310,6 @@
         detail:
           'Sweating is keeping you in balance, but you’re close to its limit. A little ' +
           'more effort, sun or humidity will tip you over. Hydrate and take it steady.',
-        meterHint: 'Near the ~85% sustainable-sweat line — little headroom left.',
       };
     }
     // Moderate load, warm-but-muggy air (wet-bulb 24–27 °C), or simply hot air
@@ -331,7 +322,6 @@
         detail:
           'Sweat is evaporating well and keeping you in balance. It may feel warm ' +
           'or muggy, so keep drinking water — but there’s room to spare.',
-        meterHint: 'Comfortable margin before sweat is maxed out.',
       };
     }
     return {
@@ -341,7 +331,6 @@
       detail:
         'Conditions are easy for the body — sweat evaporates readily and there’s lots ' +
         'of spare cooling capacity.',
-      meterHint: 'Lots of spare evaporative capacity.',
     };
   }
 
