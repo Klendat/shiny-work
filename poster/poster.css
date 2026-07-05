@@ -30,8 +30,6 @@ html, body {
     calc(env(safe-area-inset-bottom) + 28px);
 }
 
-/* The two-column split wrappers are invisible in portrait — the sections flow
-   exactly as before. They only become columns on widescreen (media query below). */
 .po__split, .po__col { display: contents; }
 
 /* Masthead */
@@ -221,10 +219,6 @@ html, body {
 
 [hidden] { display: none !important; }
 
-/* Widescreen (tablets, desktop, landscape phones): the app was built for
-   portrait, so here we keep the single sheet but enlarge it, centre it
-   vertically, and let it read as a paper sheet on the darker desk tone that
-   fills the side space. Portrait phones keep the full-bleed paper. */
 @media (min-width: 48rem) {
   .po { align-items: center; }
   .po__sheet {
@@ -234,7 +228,6 @@ html, body {
       44px
       calc(env(safe-area-inset-bottom) + 40px);
   }
-  /* verdict on the left, readouts + controls on the right — fills the width */
   .po__split {
     display: grid;
     grid-template-columns: 1fr 1fr;

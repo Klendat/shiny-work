@@ -38,8 +38,6 @@ html, body {
   flex-direction: column;
 }
 
-/* The two-column split wrappers are invisible in portrait — the sections flow
-   exactly as before. They only become columns on widescreen (media query below). */
 .tc__split, .tc__col { display: contents; }
 
 /* Header */
@@ -285,10 +283,6 @@ html, body {
 
 [hidden] { display: none !important; }
 
-/* Widescreen (tablets, desktop, landscape phones): the app was built for
-   portrait, so here we keep the single column but enlarge it and centre it
-   vertically, letting the full-bleed gradient fill the side space. Portrait
-   phones are unaffected. */
 @media (min-width: 48rem) {
   .tc { align-items: center; }
   .tc__content {
@@ -296,7 +290,6 @@ html, body {
     padding-top: calc(env(safe-area-inset-top) + 40px);
     padding-bottom: calc(env(safe-area-inset-bottom) + 40px);
   }
-  /* verdict on the left, controls on the right — fills the width */
   .tc__split {
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
@@ -306,7 +299,7 @@ html, body {
   }
   .tc__col { display: flex; flex-direction: column; }
   .tc__col--act { justify-content: center; }
-  .tc__col > :first-child { margin-top: 0; }   /* align both column tops */
+  .tc__col > :first-child { margin-top: 0; }
   .tc__temp { font-size: clamp(104px, 9vw, 148px); }
   .tc__sentence { font-size: clamp(30px, 3vw, 44px); max-width: none; }
 }
