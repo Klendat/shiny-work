@@ -308,20 +308,20 @@ html, body {
    top/bottom anchor but scale the type up so it fills the screen instead of
    floating small in a big void. Phones (narrow) are untouched. */
 @media (min-width: 40rem) and (orientation: portrait) {
-  .tc__content { max-width: min(92vw, 60rem); }
-  .tc__temp { font-size: clamp(100px, 26vmin, 300px); }
-  .tc__meta { font-size: clamp(13.5px, 3vmin, 34px); }
-  .tc__muggysvg { width: clamp(74px, 16vmin, 170px); height: clamp(74px, 16vmin, 170px); }
-  .tc__muggyword { font-size: clamp(13px, 2.6vmin, 30px); }
-  .tc__muggylabel { font-size: clamp(9px, 1.7vmin, 20px); }
-  .tc__sentence { font-size: clamp(29px, 7vmin, 84px); max-width: none; }
-  .tc__loadlabels { font-size: clamp(13px, 2.6vmin, 30px); }
-  .tc__track { height: clamp(10px, 2.2vmin, 26px); }
-  .tc__label { font-size: clamp(11px, 2.1vmin, 24px); }
-  .seg { font-size: clamp(13px, 2.3vmin, 28px); padding: clamp(10px, 1.9vmin, 22px) 0; }
-  .tc__primary { font-size: clamp(14px, 2.5vmin, 30px); padding: clamp(14px, 2.2vmin, 26px) 0; }
-  .tc__link { font-size: clamp(13px, 2.1vmin, 24px); }
-  .tc__caveat { font-size: clamp(9.5px, 1.6vmin, 18px); }
+  .tc__content { max-width: min(92vw, 52rem); }
+  .tc__temp { font-size: clamp(100px, 15vmin, 190px); }
+  .tc__meta { font-size: clamp(13.5px, 1.9vmin, 24px); }
+  .tc__muggysvg { width: clamp(74px, 9.5vmin, 118px); height: clamp(74px, 9.5vmin, 118px); }
+  .tc__muggyword { font-size: clamp(13px, 1.7vmin, 21px); }
+  .tc__muggylabel { font-size: clamp(9px, 1.2vmin, 15px); }
+  .tc__sentence { font-size: clamp(29px, 4vmin, 52px); max-width: none; }
+  .tc__loadlabels { font-size: clamp(13px, 1.7vmin, 21px); }
+  .tc__track { height: clamp(10px, 1.4vmin, 18px); }
+  .tc__label { font-size: clamp(11px, 1.5vmin, 18px); }
+  .seg { font-size: clamp(13px, 1.6vmin, 20px); padding: clamp(9px, 1.4vmin, 16px) 0; }
+  .tc__primary { font-size: clamp(14px, 1.7vmin, 22px); padding: clamp(14px, 1.6vmin, 20px) 0; }
+  .tc__link { font-size: clamp(13px, 1.5vmin, 18px); }
+  .tc__caveat { font-size: clamp(9.5px, 1.2vmin, 15px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
