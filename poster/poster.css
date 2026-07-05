@@ -244,7 +244,10 @@ html, body {
    editorial sheet up to fill the screen. Phones (narrow) are untouched. */
 @media (min-width: 40rem) and (orientation: portrait) {
   .po__sheet { max-width: min(92vw, 56rem); display: flex; flex-direction: column; }
-  .po__load { margin-top: auto; }   /* anchor load + everything below to the bottom */
+  /* Anchor the load section (and everything below) to the bottom, and move the
+     divider rule up so it closes the top block — the gap falls below the line. */
+  .po__load { margin-top: auto; border-top: 0; padding-top: 0; }
+  .po__verdict { border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
   .po__title { font-size: clamp(15px, 2.6vmin, 30px); }
   .po__coords { font-size: clamp(10px, 1.8vmin, 20px); }
   .po__status { font-size: clamp(11px, 2.2vmin, 26px); }
