@@ -116,8 +116,8 @@
   // This is comfort, not safety, and never changes the verdict.
   //
   // Word buckets follow the meteorological dew-point comfort scale. `f` is a
-  // 0–1 fraction over the 6–26 °C dew-point range, used by the design pages to
-  // drive their visual (star→octagon fill, needle position, etc.).
+  // 0–1 fraction over the 6–26 °C dew-point range, used by the Thermometer to
+  // drive its mugginess mark (the star that retracts into an octagon).
   const MUGGY_WORDS = [
     { max: 13, word: 'Dry' },          // sweat flashes off instantly
     { max: 16, word: 'Comfortable' },  // evaporates easily
@@ -177,7 +177,7 @@
     }
 
     const level = classify(w, Tw, t, ageAdj);
-    return { t, rh, windMs, Tw, feels, dewC, muggy: mugginess(dewC), M, Ereq, Emax, w, ...level };
+    return { t, rh, windMs, Tw, feels, dewC, muggy: mugginess(dewC), w, ...level };
   }
 
   // Map wettedness (is sweat sufficient for this effort?) plus the absolute
@@ -335,7 +335,7 @@
   }
 
   /* ------------------------------------------------------------------ *
-   * Design-tier mapping (shared by the alternate design pages)
+   * Design-tier mapping (shared by both views)
    * ------------------------------------------------------------------ */
 
   // The design mocks speak in five visual tiers keyed off "sweat load". We drive
@@ -525,9 +525,9 @@
   }
 
   /* ------------------------------------------------------------------ *
-   * Shared page controller (used by the alternate design pages)
+   * Shared page controller (used by both views)
    * ------------------------------------------------------------------ *
-   * The three design pages differ only in how they DISPLAY a reading. The
+   * The two views differ only in how they DISPLAY a reading. The
    * state, preference persistence, geolocation / manual / map flows and event
    * wiring are identical, so they live here. A page supplies two callbacks:
    *   • render(result, state) — paint a computed evaluate() result
@@ -780,7 +780,7 @@
     loadPrefs, savePrefs,
     // map
     initMapPicker,
-    // shared page controller (design pages)
+    // shared page controller (both views)
     createApp,
   };
 
