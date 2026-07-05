@@ -210,7 +210,7 @@
     if (Tw >= 35) {
       return {
         level: 'crit',
-        status: 'Critical — evaporation impossible',
+        status: 'No evaporation',
         headline: 'Sweat cannot cool you',
         detail:
           'The air is so warm and humid that sweat will not evaporate at all. Get to ' +
@@ -244,7 +244,7 @@
         // Warm AND overloaded — genuinely cool down another way.
         return {
           level: 'bad',
-          status: 'Sweat can’t keep up',
+          status: 'Overwhelmed',
           headline: 'Cool down another way',
           detail:
             'At this effort you’re making more heat than the warm, humid air lets you ' +
@@ -256,7 +256,7 @@
       // Cool air but hard effort — normal, self-limiting, not dangerous.
       return {
         level: 'warn',
-        status: 'Sweat maxed for this effort',
+        status: 'Maxed out',
         headline: 'Sweat is at its limit',
         detail:
           'Working hard enough to outpace evaporation means warming up — but the air ' +
@@ -271,7 +271,7 @@
     if (TwR >= 27) {
       return {
         level: 'warn',
-        status: 'Hot — heat-stress zone',
+        status: 'Heat stress',
         headline: 'It’s hot — don’t overdo it',
         detail:
           'Sweat is keeping up for now, but this is a genuinely hot, humid ' +
@@ -289,7 +289,7 @@
     if (tR >= 35) {
       return {
         level: 'warn',
-        status: 'Hot — running on sweat alone',
+        status: 'Hotter than skin',
         headline: 'The air is adding heat',
         detail:
           'The air is hotter than skin, so it’s warming the body — only sweat ' +
@@ -304,7 +304,7 @@
     if (w > 0.85) {
       return {
         level: 'warn',
-        status: 'Working near capacity',
+        status: 'Little margin',
         headline: 'Sweat is working — with little margin',
         detail:
           'Sweating is keeping you in balance, but you’re close to its limit. A little ' +
@@ -317,7 +317,7 @@
     if (w > 0.5 || TwR >= 24 || tR >= 33) {
       return {
         level: 'good',
-        status: 'Sweat is working',
+        status: 'Warm but fine',
         headline: 'You’re cooling fine',
         detail:
           'Sweat is evaporating well and keeping you in balance. It may feel warm ' +
@@ -327,7 +327,7 @@
     }
     return {
       level: 'great',
-      status: 'Sweat is working',
+      status: 'Plenty of margin',
       headline: 'Plenty of cooling margin',
       detail:
         'Conditions are easy for the body — sweat evaporates readily and there’s lots ' +
