@@ -308,20 +308,23 @@ html, body {
    top/bottom anchor but scale the type up so it fills the screen instead of
    floating small in a big void. Phones (narrow) are untouched. */
 @media (min-width: 40rem) and (orientation: portrait) {
-  .tc__content { max-width: min(92vw, 52rem); }
-  .tc__temp { font-size: clamp(100px, 15vmin, 190px); }
-  .tc__meta { font-size: clamp(13.5px, 1.9vmin, 24px); }
-  .tc__muggysvg { width: clamp(74px, 9.5vmin, 118px); height: clamp(74px, 9.5vmin, 118px); }
-  .tc__muggyword { font-size: clamp(13px, 1.7vmin, 21px); }
-  .tc__muggylabel { font-size: clamp(9px, 1.2vmin, 15px); }
-  .tc__sentence { font-size: clamp(29px, 4vmin, 52px); max-width: none; }
-  .tc__loadlabels { font-size: clamp(13px, 1.7vmin, 21px); }
-  .tc__track { height: clamp(10px, 1.4vmin, 18px); }
-  .tc__label { font-size: clamp(11px, 1.5vmin, 18px); }
-  .seg { font-size: clamp(13px, 1.6vmin, 20px); padding: clamp(9px, 1.4vmin, 16px) 0; }
-  .tc__primary { font-size: clamp(14px, 1.7vmin, 22px); padding: clamp(14px, 1.6vmin, 20px) 0; }
-  .tc__link { font-size: clamp(13px, 1.5vmin, 18px); }
-  .tc__caveat { font-size: clamp(9.5px, 1.2vmin, 15px); }
+  /* Type scales as a % of the content column (container units), so the column's
+     own max-width is the natural ceiling — no pixel caps, and it can't overflow.
+     The px floors are the phone-breakpoint readability guard. */
+  .tc__content { max-width: min(92vw, 52rem); container-type: inline-size; }
+  .tc__temp { font-size: max(100px, 24cqi); }
+  .tc__meta { font-size: max(13.5px, 3cqi); }
+  .tc__muggysvg { width: max(74px, 15cqi); height: max(74px, 15cqi); }
+  .tc__muggyword { font-size: max(13px, 2.7cqi); }
+  .tc__muggylabel { font-size: max(9px, 1.9cqi); }
+  .tc__sentence { font-size: max(29px, 6.6cqi); max-width: none; }
+  .tc__loadlabels { font-size: max(13px, 2.7cqi); }
+  .tc__track { height: max(10px, 2.3cqi); }
+  .tc__label { font-size: max(11px, 2.3cqi); }
+  .seg { font-size: max(13px, 2.6cqi); padding: max(9px, 2cqi) 0; }
+  .tc__primary { font-size: max(14px, 2.8cqi); padding: max(14px, 2.6cqi) 0; }
+  .tc__link { font-size: max(13px, 2.3cqi); }
+  .tc__caveat { font-size: max(9.5px, 1.9cqi); }
 }
 
 @media (prefers-reduced-motion: reduce) {

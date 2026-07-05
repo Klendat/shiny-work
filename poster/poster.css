@@ -243,30 +243,32 @@ html, body {
 /* Large portrait displays (wall-mounted screens, tablets upright): scale the
    editorial sheet up to fill the screen. Phones (narrow) are untouched. */
 @media (min-width: 40rem) and (orientation: portrait) {
-  .po__sheet { max-width: min(92vw, 50rem); display: flex; flex-direction: column; }
+  /* Type scales as a % of the sheet width (container units) — the sheet's
+     max-width is the natural ceiling; no pixel caps, no overflow. */
+  .po__sheet { max-width: min(92vw, 50rem); display: flex; flex-direction: column; container-type: inline-size; }
   /* Anchor the load section (and everything below) to the bottom, and move the
      divider rule up so it closes the top block — the gap falls below the line. */
   .po__load { margin-top: auto; border-top: 0; padding-top: 0; }
   .po__verdict { border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
-  .po__title { font-size: clamp(15px, 2vmin, 24px); }
-  .po__coords { font-size: clamp(10px, 1.5vmin, 16px); }
-  .po__status { font-size: clamp(11px, 1.7vmin, 20px); }
-  .po__headline { font-size: clamp(58px, 11vmin, 124px); }
-  .po__airtag { font-size: clamp(11px, 1.7vmin, 20px); }
-  .po__airword { font-size: clamp(27px, 4vmin, 46px); }
-  .po__detail { font-size: clamp(13px, 1.9vmin, 21px); max-width: none; }
-  .po__loadlabel { font-size: clamp(11px, 1.7vmin, 20px); }
-  .po__pct { font-size: clamp(40px, 6vmin, 68px); }
-  .po__track { height: clamp(16px, 2.1vmin, 24px); }
-  .po__k { font-size: clamp(9.5px, 1.5vmin, 16px); }
-  .po__v { font-size: clamp(25px, 3.4vmin, 40px); }
-  .po__label { font-size: clamp(11px, 1.7vmin, 20px); }
-  .seg { font-size: clamp(11px, 1.7vmin, 20px); padding: clamp(10px, 1.5vmin, 16px) 0; }
-  .po__seg--age .seg { font-size: clamp(9.5px, 1.5vmin, 18px); }
-  .po__btn { font-size: clamp(11px, 1.7vmin, 20px); padding: clamp(12px, 1.6vmin, 18px) 0; }
-  .po__caveat { font-size: clamp(9px, 1.3vmin, 15px); }
-  .po__manualtoggle { font-size: clamp(11px, 1.5vmin, 18px); }
-  .po__skinlink { font-size: clamp(10px, 1.4vmin, 16px); }
+  .po__title { font-size: max(15px, 3.4cqi); }
+  .po__coords { font-size: max(10px, 2.25cqi); }
+  .po__status { font-size: max(11px, 2.8cqi); }
+  .po__headline { font-size: max(58px, 17.4cqi); }
+  .po__airtag { font-size: max(11px, 2.8cqi); }
+  .po__airword { font-size: max(27px, 6.5cqi); }
+  .po__detail { font-size: max(13px, 3cqi); max-width: none; }
+  .po__loadlabel { font-size: max(11px, 2.8cqi); }
+  .po__pct { font-size: max(40px, 9.5cqi); }
+  .po__track { height: max(16px, 3.4cqi); }
+  .po__k { font-size: max(9.5px, 2.25cqi); }
+  .po__v { font-size: max(25px, 5.6cqi); }
+  .po__label { font-size: max(11px, 2.8cqi); }
+  .seg { font-size: max(11px, 2.8cqi); padding: max(10px, 2.25cqi) 0; }
+  .po__seg--age .seg { font-size: max(9.5px, 2.5cqi); }
+  .po__btn { font-size: max(11px, 2.8cqi); padding: max(12px, 2.5cqi) 0; }
+  .po__caveat { font-size: max(9px, 2.1cqi); }
+  .po__manualtoggle { font-size: max(11px, 2.5cqi); }
+  .po__skinlink { font-size: max(10px, 2.25cqi); }
 }
 
 @media (prefers-reduced-motion: reduce) { .po__fill { transition: none; } }
