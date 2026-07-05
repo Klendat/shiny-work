@@ -6,6 +6,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
   background: #e9e7e2;
   color: #141310;
   font-family: Archivo, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -29,6 +30,10 @@ html, body {
     calc(env(safe-area-inset-bottom) + 28px);
 }
 
+/* The two-column split wrappers are invisible in portrait — the sections flow
+   exactly as before. They only become columns on widescreen (media query below). */
+.po__split, .po__col { display: contents; }
+
 /* Masthead */
 .po__masthead {
   display: flex;
@@ -48,7 +53,7 @@ html, body {
   margin: 6px 0 0;
   font-family: Anton, sans-serif;
   font-weight: 400;
-  font-size: 58px;
+  font-size: clamp(42px, 14vw, 58px);
   line-height: 0.95;
   letter-spacing: 0.01em;
 }
@@ -215,5 +220,31 @@ html, body {
 .po__mapconfirm { width: calc(100% - 28px); margin: 10px 14px 14px; }
 
 [hidden] { display: none !important; }
+
+/* Widescreen (tablets, desktop, landscape phones): the app was built for
+   portrait, so here we keep the single sheet but enlarge it, centre it
+   vertically, and let it read as a paper sheet on the darker desk tone that
+   fills the side space. Portrait phones keep the full-bleed paper. */
+@media (min-width: 48rem) {
+  .po { align-items: center; }
+  .po__sheet {
+    max-width: 60rem;
+    padding:
+      calc(env(safe-area-inset-top) + 40px)
+      44px
+      calc(env(safe-area-inset-bottom) + 40px);
+  }
+  /* verdict on the left, readouts + controls on the right — fills the width */
+  .po__split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: start;
+    margin-top: 14px;
+  }
+  .po__col { display: flex; flex-direction: column; }
+  .po__col > :first-child { margin-top: 0; }
+  .po__headline { font-size: clamp(58px, 6vw, 80px); }
+}
 
 @media (prefers-reduced-motion: reduce) { .po__fill { transition: none; } }

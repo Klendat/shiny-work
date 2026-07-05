@@ -23,6 +23,8 @@
         <span class="tc__place" id="place"></span>
       </header>
 
+      <div class="tc__split">
+      <div class="tc__col tc__col--read">
       <div class="tc__tempblock">
         <div class="tc__tempmain">
           <div class="tc__temp" id="temp">—</div>
@@ -47,7 +49,9 @@
         </div>
         <div class="tc__track"><div class="tc__fill" id="loadFill"></div></div>
       </section>
+      </div><!-- /tc__col--read -->
 
+      <div class="tc__col tc__col--act">
       <div class="tc__control">
         <div class="tc__label">WHAT ARE YOU DOING?</div>
         <div class="tc__seg" id="activity" role="radiogroup" aria-label="Activity level">
@@ -93,6 +97,8 @@
         </div>
         <button type="button" class="tc__primary tc__primary--manual" id="applyManual">Calculate</button>
       </div>
+      </div><!-- /tc__col--act -->
+      </div><!-- /tc__split -->
 
       <p class="tc__caveat">Air-physics estimate — not medical advice. Uses shade temperature. If you feel unwell, stop and cool down.</p>
       <a class="tc__skinlink" href="poster/">Poster view →</a>

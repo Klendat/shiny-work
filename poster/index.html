@@ -23,13 +23,17 @@
         <span class="po__coords" id="place">—</span>
       </header>
 
+      <div class="po__split">
+      <div class="po__col po__col--read">
       <section class="po__verdict" aria-live="polite">
         <div class="po__status" id="status">—</div>
         <h1 class="po__headline">SWEAT<br><span class="po__word" id="word">—</span></h1>
         <div class="po__air"><span class="po__airtag">AIR</span><span class="po__airword" id="airWord">—</span></div>
         <p class="po__detail" id="detail">Locating you…</p>
       </section>
+      </div><!-- /po__col--read -->
 
+      <div class="po__col po__col--act">
       <section class="po__load">
         <div class="po__loadrow">
           <span class="po__loadlabel">SWEAT LOAD</span>
@@ -69,6 +73,8 @@
         <button type="button" class="po__btn po__btn--primary" id="refreshBtn">USE MY LOCATION</button>
         <button type="button" class="po__btn" id="mapBtn">PICK ON MAP</button>
       </div>
+      </div><!-- /po__col--act -->
+      </div><!-- /po__split -->
 
       <div class="po__foot">
         <p class="po__caveat">Air-physics estimate — <strong>not medical advice</strong>. Uses shade temperature. If you feel unwell, stop and cool down.</p>
