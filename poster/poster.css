@@ -219,7 +219,7 @@ html, body {
 
 [hidden] { display: none !important; }
 
-@media (min-width: 48rem) {
+@media (min-width: 48rem) and (orientation: landscape) {
   .po { align-items: center; }
   .po__sheet {
     max-width: 60rem;
@@ -238,6 +238,31 @@ html, body {
   .po__col { display: flex; flex-direction: column; }
   .po__col > :first-child { margin-top: 0; }
   .po__headline { font-size: clamp(58px, 6vw, 80px); }
+}
+
+/* Large portrait displays (wall-mounted screens, tablets upright): scale the
+   editorial sheet up to fill the screen. Phones (narrow) are untouched. */
+@media (min-width: 40rem) and (orientation: portrait) {
+  .po__sheet { max-width: min(92vw, 56rem); }
+  .po__title { font-size: clamp(15px, 2.6vmin, 30px); }
+  .po__coords { font-size: clamp(10px, 1.8vmin, 20px); }
+  .po__status { font-size: clamp(11px, 2.2vmin, 26px); }
+  .po__headline { font-size: clamp(58px, 17vmin, 200px); }
+  .po__airtag { font-size: clamp(11px, 2.2vmin, 26px); }
+  .po__airword { font-size: clamp(27px, 5.5vmin, 66px); }
+  .po__detail { font-size: clamp(13px, 2.4vmin, 28px); max-width: none; }
+  .po__loadlabel { font-size: clamp(11px, 2.2vmin, 26px); }
+  .po__pct { font-size: clamp(40px, 8vmin, 96px); }
+  .po__track { height: clamp(16px, 2.8vmin, 34px); }
+  .po__k { font-size: clamp(9.5px, 1.7vmin, 20px); }
+  .po__v { font-size: clamp(25px, 4.4vmin, 52px); }
+  .po__label { font-size: clamp(11px, 2.2vmin, 26px); }
+  .seg { font-size: clamp(11px, 2.2vmin, 26px); padding: clamp(10px, 1.9vmin, 22px) 0; }
+  .po__seg--age .seg { font-size: clamp(9.5px, 2vmin, 24px); }
+  .po__btn { font-size: clamp(11px, 2.2vmin, 26px); padding: clamp(12px, 2.1vmin, 26px) 0; }
+  .po__caveat { font-size: clamp(9px, 1.6vmin, 18px); }
+  .po__manualtoggle { font-size: clamp(11px, 1.9vmin, 22px); }
+  .po__skinlink { font-size: clamp(10px, 1.8vmin, 20px); }
 }
 
 @media (prefers-reduced-motion: reduce) { .po__fill { transition: none; } }
