@@ -292,10 +292,11 @@
         status: 'Hotter than skin',
         headline: 'The air is hotter than your skin',
         detail:
-          'The air is hotter than skin, so it’s warming the body — only sweat ' +
-          'evaporating is cooling it. It’s dry enough that sweating works, but a hot ' +
-          'breeze won’t cool you (a humid one makes it worse), and fluid is going ' +
-          'fast. Drink constantly, seek shade or AC, and don’t rely on the wind.',
+          'The air is hotter than skin, so it’s warming the body — only evaporating ' +
+          'sweat is cooling you. It’s dry enough that a breeze still helps, speeding ' +
+          'evaporation faster than it adds heat — but only while you keep sweating and ' +
+          'stay hydrated, and a more humid wind would tip the other way. Fluid is going ' +
+          'fast, so drink constantly and seek shade or AC.',
         meterHint: 'Cooling depends entirely on sweat evaporating — the air gives none back.',
       };
     }
