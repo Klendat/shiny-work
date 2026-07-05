@@ -211,7 +211,7 @@
       return {
         level: 'crit',
         status: 'No evaporation',
-        headline: 'Sweat cannot cool you',
+        headline: 'Sweat can’t cool you',
         detail:
           'The air is so warm and humid that sweat will not evaporate at all. Get to ' +
           'shade, air conditioning or cold water now — sweating cannot help here.',
@@ -229,7 +229,7 @@
       return {
         level: 'bad',
         status: 'Dangerous heat',
-        headline: 'Cool down another way',
+        headline: 'Dangerous heat — cool another way',
         detail:
           'The wet-bulb temperature is in the dangerous range — sweat can barely ' +
           'evaporate even at rest. Seek shade/AC, wet the skin, use a fan, and limit ' +
@@ -245,7 +245,7 @@
         return {
           level: 'bad',
           status: 'Overwhelmed',
-          headline: 'Cool down another way',
+          headline: 'Overwhelmed — cool another way',
           detail:
             'At this effort you’re making more heat than the warm, humid air lets you ' +
             'sweat off. Core temperature will rise. Ease off, seek shade/AC, wet the ' +
@@ -257,7 +257,7 @@
       return {
         level: 'warn',
         status: 'Maxed out',
-        headline: 'Sweat is at its limit',
+        headline: 'Sweat is maxed out',
         detail:
           'Working hard enough to outpace evaporation means warming up — but the air ' +
           'itself is cool, so this isn’t dangerous. Ease off or hydrate and it settles.',
@@ -272,7 +272,7 @@
       return {
         level: 'warn',
         status: 'Heat stress',
-        headline: 'It’s hot — don’t overdo it',
+        headline: 'Heat stress — don’t overdo it',
         detail:
           'Sweat is keeping up for now, but this is a genuinely hot, humid ' +
           `environment (wet-bulb ${Math.round(Tw)} °C). Expect heavy sweating and ` +
@@ -290,7 +290,7 @@
       return {
         level: 'warn',
         status: 'Hotter than skin',
-        headline: 'The air is adding heat',
+        headline: 'The air is hotter than your skin',
         detail:
           'The air is hotter than skin, so it’s warming the body — only sweat ' +
           'evaporating is cooling it. It’s dry enough that sweating works, but a hot ' +
@@ -318,7 +318,7 @@
       return {
         level: 'good',
         status: 'Warm but fine',
-        headline: 'You’re cooling fine',
+        headline: 'Warm, but you’re fine',
         detail:
           'Sweat is evaporating well and keeping you in balance. It may feel warm ' +
           'or muggy, so keep drinking water — but there’s room to spare.',
