@@ -267,8 +267,8 @@
         status: 'Maxed out',
         headline: 'Sweat is maxed out',
         detail:
-          'Working hard enough to outpace evaporation means warming up — but the air ' +
-          'itself is cool, so this isn’t dangerous. Ease off or hydrate and it settles.',
+          'Working hard enough to outpace evaporation means warming up — the air ' +
+          'itself is cool, but this might be dangerous. Ease off or hydrate and it settles.',
         meterHint: 'Above 100%, but cool air keeps this safe — just expect to run hot.',
       };
     }
@@ -283,8 +283,8 @@
         headline: 'Heat stress — don’t overdo it',
         detail:
           'Sweat is keeping up for now, but this is a genuinely hot, humid ' +
-          `environment (wet-bulb ${Math.round(Tw)} °C). Expect heavy sweating and ` +
-          'fluid loss — drink plenty, rest in shade or AC, and avoid hard exertion.',
+          'environment. Expect heavy sweating and fluid loss — drink plenty, ' +
+          'rest in shade or AC, and avoid hard exertion.',
         meterHint:
           'The sweat load may look modest, but the air itself is hot — heat still ' +
           'strains the body here.',
