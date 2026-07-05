@@ -204,6 +204,14 @@
     return result;
   }
 
+  // A fan/breeze only cools while the air is cooler than skin; once it's hotter,
+  // moving it just adds convective heat (WHO/CDC caution). Pivot on skin temp.
+  function fanAdvice(t) {
+    return t < SKIN_TEMP
+      ? 'A fan helps.'
+      : 'Skip the fan — the air is hotter than your skin, so it just blows heat at you.';
+  }
+
   function pickVerdict(w, Tw, t, age) {
     // Physical limit first — evaporation is impossible for ANYONE at this
     // wet-bulb, so age can't change it. Uses the real wet-bulb, not adjusted.
@@ -232,8 +240,8 @@
         headline: 'Dangerous heat — cool another way',
         detail:
           'The wet-bulb temperature is in the dangerous range — sweat can barely ' +
-          'evaporate even at rest. Seek shade/AC, wet the skin, use a fan, and limit ' +
-          'exertion. Core temperature can climb here.',
+          'evaporate even at rest. Seek shade/AC, wet the skin, and limit exertion. ' +
+          fanAdvice(t) + ' Core temperature can climb here.',
         meterHint: 'Wet-bulb this high leaves almost no evaporative capacity.',
       };
     }
@@ -248,8 +256,8 @@
           headline: 'Overwhelmed — cool another way',
           detail:
             'At this effort you’re making more heat than the warm, humid air lets you ' +
-            'sweat off. Core temperature will rise. Ease off, seek shade/AC, wet the ' +
-            'skin or use a fan.',
+            'sweat off. Core temperature will rise. Ease off, seek shade/AC, and wet the ' +
+            'skin. ' + fanAdvice(t),
           meterHint: 'Above 100%: sweat can’t evaporate fast enough for this effort.',
         };
       }
